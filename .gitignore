@@ -1,0 +1,8 @@
+node_modules
+_IGNORE_EDPREG4mlg
+.node-persist
+.env
+test.js
+test_cron.js
+testharian.js
+EDPREG4mlg.data.json
