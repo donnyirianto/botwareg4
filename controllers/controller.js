@@ -362,7 +362,7 @@ const updRecid2 = async () => {
     }
 }
 // ======================================================= HARIAN =========================================
-var acuan_kode_cabang = "G004,G025,G034,G097,G030,G149,G146,G148,G158,G174,G301,G305,G177,G224"
+var acuan_kode_cabang = "G004,G025,G034,G097,G030,G149,G146,G148,G158,G174,G301,G305,G177,G224,G232,G234"
 
 const HarianIris = async () => {
     try {

@@ -144,7 +144,7 @@ const dataserver = async () => {
         //'G025','G030','G034','G097','G146','G148','G149','G158','G174','G301','G305') 
         const [rows] = await conn_ho.query(`
             select * from m_server_iris where jenis='IRIS'
-            and kdcab in('G004','G025','G030','G034','G097','G146','G148','G149','G158','G174','G177','G301','G305','G224','G232')
+            and kdcab in('G004','G025','G030','G034','G097','G146','G148','G149','G158','G174','G177','G301','G305','G224','G232','G234')
             order by kdcab
         `)
         return rows
@@ -556,7 +556,7 @@ const HarianTampung = async (libur,yesterday) => {
                 where tanggal_harian = '${yesterday}'
                 and kdtk not in(${libur})
                 and concat(kdcab,kdtk) in (select concat(kodegudang,kodetoko) from posrealtime_base.toko_extended)
-                and kdcab in('G004','G025','G034','G097','G030','G149','G146','G148','G158','G174','G301','G305','G177','G224')
+                and kdcab in('G004','G025','G034','G097','G030','G149','G146','G148','G158','G174','G301','G305','G177','G224','G234','G232')
                 group by kdcab order by kdcab
             ) a
         ) a
