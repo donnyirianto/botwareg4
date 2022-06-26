@@ -16,7 +16,7 @@ const zconn = async (host,user,password,database,port, queryx) => {
       const conn =  await mysql.createConnection(dbnya); 
       
       const [result] = await conn.query(queryx)
-      
+      conn.end()
       return result
     
   } catch (error) {
