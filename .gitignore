@@ -6,3 +6,9 @@ test.js
 test_cron.js
 testharian.js
 EDPREG4mlg.data.json
+filewt
+# managed by open-wa
+**.data.json
+**.node-persist**
+**_IGNORE_**
+# end managed by open-wa

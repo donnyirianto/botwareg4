@@ -1,6 +1,6 @@
 const wa = require('@open-wa/wa-automate');
 var cron = require('node-cron');
-
+const fs = require('fs');
 var dayjs = require("dayjs");
 const Controller = require("./controllers/controller.js");
 const conn_ho = require('./services/dbho');
@@ -15,6 +15,8 @@ var taskHarianIris = true
 var taskPBHOLDEDP = true
 var taskPBHOLDCabang = true
 var taskOto = true
+var taskOto = true
+var taskExportWT = true
 //var taskUpdRecid = true
 var taskRekapHold = true
 // LIST CONTACT ======== 
@@ -24,6 +26,8 @@ const group_testbot = `120363038749627074@g.us`
 const group_edpreg_mgrspv = "6287745821811-1585040124@g.us";
 //const user_reg4_imam = `6285855835780@c.us`
 const user_reg4_donny = `6282137098104@c.us`
+const user_reg4_panca = `6282230158808@c.us`
+const user_reg4_gama = `6281999186169@c.us`
 
 
 // ================================
@@ -633,6 +637,152 @@ async function start(client) {
             } catch (err) {
                     console.log("[END] ERROR !!! Report Harian Iris :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     taskHarianIris = true
+                    console.log(err);
+            }
+          } 
+    });
+
+
+     /* =================================================*/
+    //          Send File WT
+    /* =================================================*/
+    cron.schedule('00 19,20 * * *', async() => { 
+    //cron.schedule('*/10 * * * *', async() => {
+    //    ( async() => {    
+          if (taskExportWT) { 
+                taskExportWT = false    
+                console.log("[START] Export WT: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {         
+
+                    var today = dayjs().format("YYYY-MM-DD")
+                    var today2 = dayjs().format("MMDD") 
+                     
+                    //await Controller.DownloadWT("2022-07-30","G236","T84M",`WT${today2}T.84M`)
+                    const aa = await Controller.DownloadWT(today,"G236","TYJO",`WT${today2}T.YJO`)
+                    await client.sendText(user_reg4_donny, aa);
+                    await client.sendText(user_reg4_panca, aa);
+                    await client.sendText(user_reg4_gama, aa);
+
+                    const a = await Controller.DownloadWT(today,"G236","TBZF",`WT${today2}T.BZF`)
+                    await client.sendText(user_reg4_donny, a);
+                    await client.sendText(user_reg4_panca, a);
+                    await client.sendText(user_reg4_gama, a);
+                    const b = await Controller.DownloadWT(today,"G236","THOD",`WT${today2}T.HOD`) 
+                    await client.sendText(user_reg4_donny, b);
+                    await client.sendText(user_reg4_panca, b);
+                    await client.sendText(user_reg4_gama, b);
+                    const c = await Controller.DownloadWT(today,"G236","TX3U",`WT${today2}T.X3U`) 
+                    await client.sendText(user_reg4_donny, c);
+                    await client.sendText(user_reg4_panca, c);
+                    await client.sendText(user_reg4_gama, );
+                    const d = await Controller.DownloadWT(today,"G236","T1KT",`WT${today2}T.1KT`) 
+                    await client.sendText(user_reg4_donny, d);
+                    await client.sendText(user_reg4_panca, d);
+                    await client.sendText(user_reg4_gama, d);
+                    const e = await Controller.DownloadWT(today,"G236","THM9",`WT${today2}T.HM9`) 
+                    await client.sendText(user_reg4_donny, e);
+                    await client.sendText(user_reg4_panca, e);
+                    await client.sendText(user_reg4_gama, e);
+                    const f = await Controller.DownloadWT(today,"G236","TXYX",`WT${today2}T.XYX`) 
+                    await client.sendText(user_reg4_donny, f);
+                    await client.sendText(user_reg4_panca, f);
+                    await client.sendText(user_reg4_gama, f);
+                    const g = await Controller.DownloadWT(today,"G236","TW87",`WT${today2}T.W87`) 
+                    await client.sendText(user_reg4_donny, g);
+                    await client.sendText(user_reg4_panca, g);
+                    await client.sendText(user_reg4_gama, g);
+                    const h = await Controller.DownloadWT(today,"G236","T4ZW",`WT${today2}T.4ZW`) 
+                    await client.sendText(user_reg4_donny, h);
+                    await client.sendText(user_reg4_panca, h);
+                    await client.sendText(user_reg4_gama, h);
+                    const i = await Controller.DownloadWT(today,"G236","TC0Z",`WT${today2}T.C0Z`) 
+                    await client.sendText(user_reg4_donny, i);
+                    await client.sendText(user_reg4_panca, i);
+                    await client.sendText(user_reg4_gama, i);
+                    const j = await Controller.DownloadWT(today,"G236","TP9O",`WT${today2}T.P9O`) 
+                    await client.sendText(user_reg4_donny, j);
+                    await client.sendText(user_reg4_panca, j);
+                    await client.sendText(user_reg4_gama, j);
+                    const k = await Controller.DownloadWT(today,"G236","TFIG",`WT${today2}T.FIG`) 
+                    await client.sendText(user_reg4_donny, k);
+                    await client.sendText(user_reg4_panca, k);
+                    await client.sendText(user_reg4_gama, k);
+                    const l = await Controller.DownloadWT(today,"G236","TW4T",`WT${today2}T.W4T`)  
+                    await client.sendText(user_reg4_donny, l);
+                    await client.sendText(user_reg4_panca, l);
+                    await client.sendText(user_reg4_gama, l);
+                    
+                    if (fs.existsSync(`./filewt/WT${today2}T.YJO`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.YJO`, `WT${today2}T.YJO`, 'File WT TYJO')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.YJO`, `WT${today2}T.YJO`, 'File WT TYJO')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.YJO`, `WT${today2}T.YJO`, 'File WT TYJO')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.BZF`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.BZF`, `WT${today2}T.BZF`, 'File WT TBZF')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.BZF`, `WT${today2}T.BZF`, 'File WT TBZF')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.BZF`, `WT${today2}T.BZF`, 'File WT TBZF')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.HOD`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.HOD`, `WT${today2}T.HOD`, 'File WT THOD') 
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.HOD`, `WT${today2}T.HOD`, 'File WT THOD')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.HOD`, `WT${today2}T.HOD`, 'File WT THOD')                                     
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.XU3`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.XU3`, `WT${today2}T.X3U`, 'File WT TX3U') 
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.X3U`, `WT${today2}T.X3U`, 'File WT TX3U')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.X3U`, `WT${today2}T.X3U`, 'File WT TX3U')                                 
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.1KT`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.1KT`, `WT${today2}T.1KT`, 'File WT T1KT') 
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.1KT`, `WT${today2}T.1KT`, 'File WT T1KT')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.1KT`, `WT${today2}T.1KT`, 'File WT T1KT')  
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.HM9`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.HM9`, `WT${today2}T.HM9`, 'File WT THM9')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.HM9`, `WT${today2}T.HM9`, 'File WT THM9')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.HM9`, `WT${today2}T.HM9`, 'File WT THM9')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.XYX`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.XYX`, `WT${today2}T.XYX`, 'File WT TXYX')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.XYX`, `WT${today2}T.XYX`, 'File WT TXYX')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.XYX`, `WT${today2}T.XYX`, 'File WT TXYX')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.W87`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.W87`, `WT${today2}T.W87`, 'File WT TW87')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.W87`, `WT${today2}T.W87`, 'File WT TW87')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.W87`, `WT${today2}T.W87`, 'File WT TW87') 
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.4ZW`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.4ZW`, `WT${today2}T.4ZW`, 'File WT T4ZW') 
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.4ZW`, `WT${today2}T.4ZW`, 'File WT T4ZW')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.4ZW`, `WT${today2}T.4ZW`, 'File WT T4ZW')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.C0Z`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.C0Z`, `WT${today2}T.C0Z`, 'File WT TC0Z')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.C0Z`, `WT${today2}T.C0Z`, 'File WT TC0Z')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.C0Z`, `WT${today2}T.C0Z`, 'File WT TC0Z')
+                    } 
+                    if (fs.existsSync(`./filewt/WT${today2}T.P9O`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.P9O`, `WT${today2}T.P9O`, 'File WT TP9O')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.P9O`, `WT${today2}T.P9O`, 'File WT TP9O')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.P9O`, `WT${today2}T.P9O`, 'File WT TP9O')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.FIG`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.FIG`, `WT${today2}T.FIG`, 'File WT TFIG')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.FIG`, `WT${today2}T.FIG`, 'File WT TFIG')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.FIG`, `WT${today2}T.FIG`, 'File WT TFIG')
+                    }
+                    if (fs.existsSync(`./filewt/WT${today2}T.TW4T`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.W4T`, `WT${today2}T.W4T`, 'File WT TW4T')
+                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.W4T`, `WT${today2}T.W4T`, 'File WT TW4T')
+                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.W4T`, `WT${today2}T.W4T`, 'File WT TW4T')
+                    } 
+
+                    taskExportWT = true
+
+            } catch (err) {
+                    console.log("[END] ERROR !!! Export WT :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskExportWT = true
                     console.log(err);
             }
           } 

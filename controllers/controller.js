@@ -1,6 +1,9 @@
 const Models = require("../models/model");
 const conn_local = require('../services/dbho');
 const zconn = require('../services/anydb');
+const Iptoko = require('../helpers/iptoko');
+const { Parser } = require('json2csv');
+const fs = require('fs');
 var dayjs = require("dayjs");
 
 function numberWithCommas(x) {
@@ -638,6 +641,40 @@ const HarianSalah = async () => {
     }
 }
 
+const DownloadWT = async (today,kdcab,toko,namawt) => {
+    try {  
+        
+        var pesan = ""
+        const dtoko = await Iptoko.bykdtk(kdcab,toko)
+        
+        if(dtoko.data.length > 0){
+            const getWT = await Models.getWT(dtoko.data[0],today)
+            if(getWT.length > 0){
+                const json2csvParser = new Parser({ delimiter: '|', quote: '' });
+                const csv = json2csvParser.parse(getWT);
+                //fs.unlinkSync(`./filewt/${namawt}`)
+                
+                fs.writeFileSync(`./filewt/${namawt}`, csv);
+                
+                pesan =`${kdcab} - ${toko} Export WT : ${today} Sukses`    
+            }else{
+                pesan =`${kdcab} - ${toko} Export WT : ${today} 0 Row`
+            }
+            
+        
+        }else{
+            
+            pesan =`${kdcab} - ${toko} - IP Tidak Terdaftar`
+        } 
+        console.log(pesan)
+        return pesan
+    } catch (e) {
+        
+        return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
+    }
+}
+
+
 module.exports = {
     DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,
     HarianIris, HarianIrisCabang, HarianTampung , HarianTampungCabang, HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
@@ -646,6 +683,7 @@ module.exports = {
     AkunCabang,
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
-    updateDataOto,updRecid2,HitungRekapHold,getBM
+    updateDataOto,updRecid2,HitungRekapHold,getBM,
+    DownloadWT
   }
  

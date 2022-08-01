@@ -832,11 +832,41 @@ from(
     }
 }
 
+const getWT = async (dtoko,tanggal) => { 
+    
+    try {
+        const queryx = `
+        SELECT A.RECID,LEFT(A.Rtype,1) AS RTYPE,A.Bukti_No AS DOCNO,A.SEQNO,MID(B.Cat_Cod,3,2) AS \`DIV\`,A.PRDCD,A.QTY,A.PRICE,A.GROSS,' ' AS CTERM,A.Invno AS DOCNO2,
+A.ISTYPE,A.INVNO,IF((rtype='BPB' AND istype='') OR rtype IN ('I','O') OR (rtype='K' AND istype<>'L'),gudang,
+IF((rtype='BPB' AND istype<>'') OR (rtype='K' AND istype='L'),a.supco,
+IF(rtype='X' AND (istype='' OR istype IN ('BM','KO')),(SELECT toko FROM toko),
+IF(rtype='X' AND (istype LIKE '%BA%' OR istype LIKE '%SO%') AND a.supco='',(SELECT toko FROM toko),
+IF(rtype='X' AND (istype LIKE '%BA%' OR istype LIKE '%SO%') AND a.supco<>'',a.supco,'XXX'))))) AS TOKO,
+DATE_FORMAT(A.Bukti_Tgl,LOWER('%Y%M%D')) AS Date,DATE_FORMAT(A.Inv_Date,LOWER('%Y%M%D')) AS DATE2,A.Keter as KETERANGAN,B.PTAG,B.CAT_COD,
+'01' AS LOKASI,DATE_FORMAT(A.Bukti_Tgl,'%d-%m-%Y') AS Tgl1,DATE_FORMAT(A.Inv_Date,'%d-%m-%Y') AS TGL2,A.PPN,'' AS TOKO_1,'' AS DATE3,'' AS DOCNO3,(SELECT Kdtk FROM Toko) AS SHOP3,
+A.PRICE_IDM,'0' AS PPNBM_IDM,A.PPN_RP_IDM,A.LT,A.RAK,A.BAR,IF(A.Bkp="Y",'T','F') AS BKP,A.SUB_BKP,A.Prdcd AS PLUMD,A.GROSS_JUAL,A.PRICE_JUAL,C.KODE_SUPPLIER,a.Disc_05 AS DISC05,
+ppn_rate as RATE_PPN
+FROM Mstran A LEFT JOIN Prodmast B ON A.Prdcd=B.Prdcd
+LEFT JOIN Supmast C ON A.Supco=C.Supco
+WHERE istype not in('GGC','RMB')
+AND DATE(bukti_tgl) LIKE '%${tanggal}%';
+`       
+        const rows = await conn_any.zconn(dtoko.IP,dtoko.USER,"goCkeKArFYJYqmN9DHS/Uyn1HGgFpqrVI=REgE+tC2ZG","POS","3306", queryx)
+        
+        return rows
+
+    } catch (e) { 
+        
+        return "Gagal"
+    }
+}
+
 
 module.exports = {
     DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,
     getipiriscab,HarianIrisCabang,HarianIris,HarianTampung,HarianTampungCabang,TokoLibur,HarianSalah,
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
-    HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM
+    HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
+    getWT
 }
