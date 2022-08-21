@@ -24,10 +24,13 @@ const group_testbot = `120363038749627074@g.us`
 // const group_ho_pbro = `628999226654-1461653082@g.us`;
 // pmconst group_ho_igr = `xx628999226654-1461653082@g.us`;
 const group_edpreg_mgrspv = "6287745821811-1585040124@g.us";
-//const user_reg4_imam = `6285855835780@c.us`
+const user_reg4_imam = `6285855835780@c.us`
 const user_reg4_donny = `6282137098104@c.us`
 const user_reg4_panca = `6282230158808@c.us`
 const user_reg4_gama = `6281999186169@c.us`
+const user_reg4_fariz = `628563600323@c.us`
+const user_reg4_rianto = `6285645595869@c.us`
+const user_reg4_putra = `6283847102754@c.us`
 
 
 // ================================
@@ -60,11 +63,12 @@ async function start(client) {
     
     
     const Irisshortcut = `👋 *Selamat Datang,*
-    *_Ketik Angka Pengecekan Absensi Data Harian:_*
+    *_Silahkan Ketik Angka Berikut Sesuai Format pada Contoh :_*
     1. Server Iris 
     2. Server Tampung 
     3. Peletakan File Harian Salah Server
     4. Absensi File Harian Toko Libur
+    5. Download WT Toko
 
     *_Contoh:_*
     1 (ketik 1 untuk Absensi Iris)
@@ -72,6 +76,7 @@ async function start(client) {
     1 G001 (ketik 1 KODECABANG untuk Absensi Iris Per Cabang)
     2 G001 (ketik 2 KODECABANG untuk Absensi Tampung Per Cabang)
     4 G001 (ketik 4 KODECABANG untuk Absensi File Harian Toko Libur)
+    5 G237 TDHB 2022-08-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
     `
     const IrisNotice = `👋Maaf, Pesan Anda tidak dapat kami proses. silahkan jawab dengan format\n\nKDTK OK \nAtau\nKDTK HOLD\n\n Terima kasih.`
     
@@ -211,6 +216,29 @@ async function start(client) {
                                         await client.sendText(message.from, res4);
                                     } 
                                     break; 
+                            
+                            case '5':
+                                    
+                                    if(typeof pesan[1] === "undefined"){
+                                        await client.sendText(message.from, "Format Anda Salah!!");
+                                    }else{
+                                        
+                                        var today = pesan[3]
+                                        var today2 = `${pesan[3].substr(5,2)}${pesan[3].substr(8,2)}`
+                                        
+                                        const kdcab = pesan[1]
+                                        const kdtk = pesan[2]
+
+                                        const pesanwa= await Controller.DownloadWT(today,kdcab,kdtk,'', `WT${today2}${kdtk.substr(0,1)}.${kdtk.substr(1,3)}`)                                        
+                                        
+                                        if (fs.existsSync(`./filewt/WT${today2}${kdtk.substr(0,1)}.${kdtk.substr(1,3)}`)) {
+                                            await client.sendFile(message.from, `./filewt/WT${today2}${kdtk.substr(0,1)}.${kdtk.substr(1,3)}`, `WT${today2}${kdtk.substr(0,1)}.${kdtk.substr(1,3)}`, `File WT ${kdtk}`)
+                                        } 
+                                         
+                                        await client.sendText(message.from, `📚 *Hasil Export WT*\n${pesanwa}`);
+                                        
+                                    } 
+                                    break;
                 
                             default:
                                 console.log("GROUP IRIS : No Data")
@@ -647,8 +675,7 @@ async function start(client) {
     //          Send File WT
     /* =================================================*/
     cron.schedule('00 19,20 * * *', async() => { 
-    //cron.schedule('*/10 * * * *', async() => {
-    //    ( async() => {    
+       //( async() => {    
           if (taskExportWT) { 
                 taskExportWT = false    
                 console.log("[START] Export WT: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
@@ -656,128 +683,31 @@ async function start(client) {
 
                     var today = dayjs().format("YYYY-MM-DD")
                     var today2 = dayjs().format("MMDD") 
-                     
-                    //await Controller.DownloadWT("2022-07-30","G236","T84M",`WT${today2}T.84M`)
-                    const aa = await Controller.DownloadWT(today,"G236","TYJO",`WT${today2}T.YJO`)
-                    await client.sendText(user_reg4_donny, aa);
-                    await client.sendText(user_reg4_panca, aa);
-                    await client.sendText(user_reg4_gama, aa);
+                    const dataTokoWT = await Controller.dataTokoWT();
+                    var pesan =  []
+                    for(r of dataTokoWT){
 
-                    const a = await Controller.DownloadWT(today,"G236","TBZF",`WT${today2}T.BZF`)
-                    await client.sendText(user_reg4_donny, a);
-                    await client.sendText(user_reg4_panca, a);
-                    await client.sendText(user_reg4_gama, a);
-                    const b = await Controller.DownloadWT(today,"G236","THOD",`WT${today2}T.HOD`) 
-                    await client.sendText(user_reg4_donny, b);
-                    await client.sendText(user_reg4_panca, b);
-                    await client.sendText(user_reg4_gama, b);
-                    const c = await Controller.DownloadWT(today,"G236","TX3U",`WT${today2}T.X3U`) 
-                    await client.sendText(user_reg4_donny, c);
-                    await client.sendText(user_reg4_panca, c);
-                    await client.sendText(user_reg4_gama, );
-                    const d = await Controller.DownloadWT(today,"G236","T1KT",`WT${today2}T.1KT`) 
-                    await client.sendText(user_reg4_donny, d);
-                    await client.sendText(user_reg4_panca, d);
-                    await client.sendText(user_reg4_gama, d);
-                    const e = await Controller.DownloadWT(today,"G236","THM9",`WT${today2}T.HM9`) 
-                    await client.sendText(user_reg4_donny, e);
-                    await client.sendText(user_reg4_panca, e);
-                    await client.sendText(user_reg4_gama, e);
-                    const f = await Controller.DownloadWT(today,"G236","TXYX",`WT${today2}T.XYX`) 
-                    await client.sendText(user_reg4_donny, f);
-                    await client.sendText(user_reg4_panca, f);
-                    await client.sendText(user_reg4_gama, f);
-                    const g = await Controller.DownloadWT(today,"G236","TW87",`WT${today2}T.W87`) 
-                    await client.sendText(user_reg4_donny, g);
-                    await client.sendText(user_reg4_panca, g);
-                    await client.sendText(user_reg4_gama, g);
-                    const h = await Controller.DownloadWT(today,"G236","T4ZW",`WT${today2}T.4ZW`) 
-                    await client.sendText(user_reg4_donny, h);
-                    await client.sendText(user_reg4_panca, h);
-                    await client.sendText(user_reg4_gama, h);
-                    const i = await Controller.DownloadWT(today,"G236","TC0Z",`WT${today2}T.C0Z`) 
-                    await client.sendText(user_reg4_donny, i);
-                    await client.sendText(user_reg4_panca, i);
-                    await client.sendText(user_reg4_gama, i);
-                    const j = await Controller.DownloadWT(today,"G236","TP9O",`WT${today2}T.P9O`) 
-                    await client.sendText(user_reg4_donny, j);
-                    await client.sendText(user_reg4_panca, j);
-                    await client.sendText(user_reg4_gama, j);
-                    const k = await Controller.DownloadWT(today,"G236","TFIG",`WT${today2}T.FIG`) 
-                    await client.sendText(user_reg4_donny, k);
-                    await client.sendText(user_reg4_panca, k);
-                    await client.sendText(user_reg4_gama, k);
-                    const l = await Controller.DownloadWT(today,"G236","TW4T",`WT${today2}T.W4T`)  
-                    await client.sendText(user_reg4_donny, l);
-                    await client.sendText(user_reg4_panca, l);
-                    await client.sendText(user_reg4_gama, l);
-                    
-                    if (fs.existsSync(`./filewt/WT${today2}T.YJO`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.YJO`, `WT${today2}T.YJO`, 'File WT TYJO')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.YJO`, `WT${today2}T.YJO`, 'File WT TYJO')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.YJO`, `WT${today2}T.YJO`, 'File WT TYJO')
+                        const datanyawt = await Controller.DownloadWT(today,r.kdcab,r.kdtk,r.namatoko,`WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)
+                        pesan.push(datanyawt)
+                        
+                        if (fs.existsSync(`./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)) {
+                            await client.sendFile(user_reg4_donny, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_gama, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_panca, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_imam, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_fariz, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_rianto, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_putra, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                        } 
                     }
-                    if (fs.existsSync(`./filewt/WT${today2}T.BZF`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.BZF`, `WT${today2}T.BZF`, 'File WT TBZF')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.BZF`, `WT${today2}T.BZF`, 'File WT TBZF')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.BZF`, `WT${today2}T.BZF`, 'File WT TBZF')
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.HOD`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.HOD`, `WT${today2}T.HOD`, 'File WT THOD') 
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.HOD`, `WT${today2}T.HOD`, 'File WT THOD')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.HOD`, `WT${today2}T.HOD`, 'File WT THOD')                                     
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.XU3`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.XU3`, `WT${today2}T.X3U`, 'File WT TX3U') 
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.X3U`, `WT${today2}T.X3U`, 'File WT TX3U')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.X3U`, `WT${today2}T.X3U`, 'File WT TX3U')                                 
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.1KT`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.1KT`, `WT${today2}T.1KT`, 'File WT T1KT') 
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.1KT`, `WT${today2}T.1KT`, 'File WT T1KT')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.1KT`, `WT${today2}T.1KT`, 'File WT T1KT')  
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.HM9`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.HM9`, `WT${today2}T.HM9`, 'File WT THM9')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.HM9`, `WT${today2}T.HM9`, 'File WT THM9')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.HM9`, `WT${today2}T.HM9`, 'File WT THM9')
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.XYX`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.XYX`, `WT${today2}T.XYX`, 'File WT TXYX')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.XYX`, `WT${today2}T.XYX`, 'File WT TXYX')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.XYX`, `WT${today2}T.XYX`, 'File WT TXYX')
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.W87`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.W87`, `WT${today2}T.W87`, 'File WT TW87')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.W87`, `WT${today2}T.W87`, 'File WT TW87')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.W87`, `WT${today2}T.W87`, 'File WT TW87') 
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.4ZW`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.4ZW`, `WT${today2}T.4ZW`, 'File WT T4ZW') 
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.4ZW`, `WT${today2}T.4ZW`, 'File WT T4ZW')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.4ZW`, `WT${today2}T.4ZW`, 'File WT T4ZW')
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.C0Z`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.C0Z`, `WT${today2}T.C0Z`, 'File WT TC0Z')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.C0Z`, `WT${today2}T.C0Z`, 'File WT TC0Z')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.C0Z`, `WT${today2}T.C0Z`, 'File WT TC0Z')
-                    } 
-                    if (fs.existsSync(`./filewt/WT${today2}T.P9O`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.P9O`, `WT${today2}T.P9O`, 'File WT TP9O')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.P9O`, `WT${today2}T.P9O`, 'File WT TP9O')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.P9O`, `WT${today2}T.P9O`, 'File WT TP9O')
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.FIG`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.FIG`, `WT${today2}T.FIG`, 'File WT TFIG')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.FIG`, `WT${today2}T.FIG`, 'File WT TFIG')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.FIG`, `WT${today2}T.FIG`, 'File WT TFIG')
-                    }
-                    if (fs.existsSync(`./filewt/WT${today2}T.TW4T`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}T.W4T`, `WT${today2}T.W4T`, 'File WT TW4T')
-                        await client.sendFile(user_reg4_panca, `./filewt/WT${today2}T.W4T`, `WT${today2}T.W4T`, 'File WT TW4T')
-                        await client.sendFile(user_reg4_gama, `./filewt/WT${today2}T.W4T`, `WT${today2}T.W4T`, 'File WT TW4T')
-                    } 
-
+                    await client.sendText(user_reg4_donny, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_gama, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_panca, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_imam, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_fariz, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_rianto, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_putra, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                        
                     taskExportWT = true
 
             } catch (err) {
@@ -787,5 +717,36 @@ async function start(client) {
             }
           } 
     });
+
+    ( async() => {    
+        if (taskExportWT) { 
+            taskExportWT = false    
+            console.log("[START] Export WT: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+            try {         
+
+                var today = dayjs().format("YYYY-MM-DD")
+                var today2 = dayjs().format("MMDD")
+                const dataTokoWT = await Controller.dataTokoWT();
+                var pesan =  []
+                for(r of dataTokoWT){
+                    const datanyawt = await Controller.DownloadWT(today,r.kdcab,r.kdtk,r.namatoko,`WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)
+                    pesan.push(datanyawt)
+                    
+                    if (fs.existsSync(`./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)) {
+                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                    } 
+                }
+                await client.sendText(user_reg4_donny, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                
+                    
+                taskExportWT = true
+
+        } catch (err) {
+                console.log("[END] ERROR !!! Export WT :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                taskExportWT = true
+                console.log(err);
+        }
+      } 
+    })();
      
 }

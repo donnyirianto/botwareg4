@@ -641,38 +641,51 @@ const HarianSalah = async () => {
     }
 }
 
-const DownloadWT = async (today,kdcab,toko,namawt) => {
+const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
     try {  
         
         var pesan = ""
         const dtoko = await Iptoko.bykdtk(kdcab,toko)
         
-        if(dtoko.data.length > 0){
+        if(dtoko.data.length > 0 && dtoko.data[0].IP.substr(0,3) != "192"){
             const getWT = await Models.getWT(dtoko.data[0],today)
-            if(getWT.length > 0){
+            
+            if(getWT.length > 0 && getWT !="Gagal" && getWT !="Error"){
                 const json2csvParser = new Parser({ delimiter: '|', quote: '' });
                 const csv = json2csvParser.parse(getWT);
                 //fs.unlinkSync(`./filewt/${namawt}`)
                 
                 fs.writeFileSync(`./filewt/${namawt}`, csv);
                 
-                pesan =`${kdcab} - ${toko} Export WT : ${today} Sukses`    
+                pesan =`*${kdcab}-${toko}-${namatoko} Export WT =  Ada trx mstran*`    
             }else{
-                pesan =`${kdcab} - ${toko} Export WT : ${today} 0 Row`
+                pesan =`${kdcab}-${toko}-${namatoko} Export WT =  Tidak Ada Trx Mstran`
             }
             
         
         }else{
             
-            pesan =`${kdcab} - ${toko} - IP Tidak Terdaftar`
+            pesan =`_${kdcab}-${toko}-${namatoko} = IP Tidak Terdaftar_`
         } 
-        console.log(pesan)
+        
         return pesan
+    } catch (e) {
+        return `_${kdcab}-${toko}-${namatoko} = Toko Tidak Dapat Diakses_`
+    }
+}
+
+
+const dataTokoWT = async () => {
+    try {  
+        const data = await Models.dataTokoWT() 
+        
+        return data
     } catch (e) {
         
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 }
+
 
 
 module.exports = {
@@ -684,6 +697,6 @@ module.exports = {
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
-    DownloadWT
+    DownloadWT,dataTokoWT
   }
  

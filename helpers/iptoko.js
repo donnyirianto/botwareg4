@@ -24,8 +24,7 @@ const bykdtk =  async(kdcab,kdtk) => {
     //console.log(results.data)
     return results.data
    } catch(err) { 
-     console.log(err)
-     
+     console.log(err)     
      return "Gagal"     
   } 
   

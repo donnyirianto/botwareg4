@@ -862,11 +862,27 @@ AND DATE(bukti_tgl) LIKE '%${tanggal}%';
 }
 
 
+const dataTokoWT = async () => { 
+    try {
+        const queryx = `select kodegudang as kdcab,kodetoko as kdtk,left(namatoko,10) as namatoko,tglbuka  
+        from posrealtime_base.toko_extended where tglbuka >= curdate()
+        and kodegudang in('G236','G237') order by kodegudang,kodetoko;`
+        const [rows] = await conn_ho.query(queryx)
+        
+        return rows
+
+    } catch (e) { 
+        
+        return "Gagal"
+    }
+}
+
+
 module.exports = {
     DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,
     getipiriscab,HarianIrisCabang,HarianIris,HarianTampung,HarianTampungCabang,TokoLibur,HarianSalah,
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT
+    getWT,dataTokoWT
 }
