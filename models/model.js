@@ -877,6 +877,20 @@ const dataTokoWT = async () => {
     }
 }
 
+const insertHarianJam9 = async (data)=>{
+    try {
+        const queryx = `INSERT IGNORE INTO m_abs_harian_jam9(kdcab,kdtk,nama,tanggal,keterangan)
+        values ${data}`
+        const result = await conn_ho.query(queryx)
+        
+        return result
+
+    } catch (e) { 
+        
+        return "Gagal"
+    }
+}
+
 
 module.exports = {
     DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,
@@ -884,5 +898,5 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT
+    getWT,dataTokoWT,insertHarianJam9
 }

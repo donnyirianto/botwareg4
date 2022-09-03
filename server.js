@@ -608,6 +608,34 @@ async function start(client) {
           } 
     });
 
+    /* 
+    ============================================
+    Pengecekan Data Harian Lebih dari jam 09
+    ============================================
+    */
+    cron.schedule('00 09 * * *', async() => { 
+        //( async() => {    
+          if (taskDataHarianjam9) { 
+                taskDataHarianjam9 = false    
+                console.log("[START] Data Harian Lebih dari jam 09: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {         
+                    
+                    const harian_lebih_9 = await Controller.DataHarianLebih9();
+                    if(harian_lebih_9 != "None"){
+                        
+                        console.log("Data Harian Lebih dari jam 09 - Ada :: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                    }
+                     
+                    console.log("[END] Data Harian Lebih dari jam 09 :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskDataHarianjam9 = true
+            } catch (err) {
+                    console.log("[END] Data Harian Lebih dari jam 09 :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskDataHarianjam9 = true
+                    console.log(err);
+            }
+          } 
+    });
+
     /* =================================================*/
     //          Report Data Harian Tampung
     /* =================================================*/
@@ -720,35 +748,6 @@ async function start(client) {
           } 
     });
 
-    ( async() => {    
-        if (taskExportWT) { 
-            taskExportWT = false    
-            console.log("[START] Export WT: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-            try {         
-
-                var today = dayjs().format("YYYY-MM-DD")
-                var today2 = dayjs().format("MMDD")
-                const dataTokoWT = await Controller.dataTokoWT();
-                var pesan =  []
-                for(r of dataTokoWT){
-                    const datanyawt = await Controller.DownloadWT(today,r.kdcab,r.kdtk,r.namatoko,`WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)
-                    pesan.push(datanyawt)
-                    
-                    if (fs.existsSync(`./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)) {
-                        await client.sendFile(user_reg4_donny, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
-                    } 
-                }
-                await client.sendText(user_reg4_donny, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
-                
-                    
-                taskExportWT = true
-
-        } catch (err) {
-                console.log("[END] ERROR !!! Export WT :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                taskExportWT = true
-                console.log(err);
-        }
-      } 
-    })();
+    
      
 }

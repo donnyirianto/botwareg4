@@ -336,6 +336,106 @@ const DataHarianKoneksi = async () => {
     }
 }
 
+const DataHarianLebih9 = async () => {
+    try{
+        
+        var tampil_data = []
+        var no = 1;
+        var date =  new Date()
+        var yesterday = date.setDate(date.getDate()-1);
+        var tanggal = dayjs(yesterday).format("YYYY-MM-DD")
+        var data_all = []
+        const ipnya = await Models.dataserver()
+        
+        for(var rip of ipnya){
+            const queryx = ` 
+                SELECT concat("'",toko,"'") as toko from m_toko
+                where (tglbuka <= '${tanggal}' and tglbuka <>'0000-00-00')
+                and (
+                    tok_tgl_tutup is null
+                    or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <'${tanggal}'
+                )
+                and toko not in
+                (
+                    select kdtk from 
+                    (
+                    select toko as kdtk
+                    from m_toko_tutup_his where tgl_tutup='${tanggal}'
+                    union all
+                    select toko as kdtk from m_toko_libur_his
+                    where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${tanggal}') as mingguke),1) ='Y' and tgl_his='${tanggal}'
+                    ) a group by kdtk
+                )
+                UNION
+                select concat("'",toko,"'") as toko from m_toko where tok_tgl_tutup >'${tanggal}' 
+                and toko not in (select toko from m_toko_tutup_his where tgl_tutup= '${tanggal}')
+                ` 
+               
+        
+            const xd  = await zconn.zconn(rip.ipserver,rip.user,rip.pass,rip.database, 3306, { sql: queryx, rowsAsArray: true })
+            if(xd !="Error"){
+                data_all.push(xd.toString())
+            }
+            
+       
+        }
+        const acuan = data_all.toString().replace(/"/g, '')
+        
+        const query_ho_belum = ` 
+                    SELECT a.KodeGudang as kdcab, 
+                        a.Kodetoko as kdtk, a.NamaToko as nama
+                    FROM posrealtime_base.toko_extended a 
+                    LEFT JOIN
+                    (
+                        select kdtk,nama_file 
+                        from m_abs_harian_file 
+                        where tanggal_harian='${tanggal}'
+                    ) b on a.Kodetoko = b.kdtk 
+                    WHERE a.Kodetoko in(${acuan})                     
+                    and b.nama_file is null
+                    order by a.kodegudang
+                `
+        
+        const [belum] = await conn_local.query({ sql: query_ho_belum })  
+     
+        var detailbelum = []
+        if(belum.length > 0){
+            const detail = belum.map( (r) =>{
+                return `'${r.kdtk}'`
+            }).toString()
+            
+            const keterquery = `select toko as kdtk,log as keterangan from temp_cek_clos_toko where tanggal='${tanggal}' and toko in(${detail})`
+            const keterangan  = await zconn.zconn("192.168.131.50","edp1","abcd@1234","management_co", 3306, { sql: keterquery })
+            
+            const a = belum.map(v => Object.assign({}, v));
+            const b = keterangan.map(v => Object.assign({}, v));
+            console.log(a,b)
+            const mergeById = (a1, a2) =>
+                a1.map(itm => (
+                        {
+                            ...a2.find((item) => (item.kdtk === itm.kdtk) && item),
+                            ...itm
+                        }
+                    )
+                )
+        
+            detailbelum = mergeById(a, b)  
+        }
+        
+        detailbelum.map( async (r)=>{            
+            tampil_data.push(`('${r.kdcab}','${r.kdtk}','${r.nama}','${tanggal}','${r.keterangan}')`)
+        })
+        
+        await Models.insertHarianJam9(tampil_data.join(","));
+        console.log(tampil_data.join(","))
+        return "Sukses"
+        
+    }catch(e){ 
+        console.log(e)
+        return "None"
+    }
+}
+
 const AkunCabang = async () => {
     try {
         const data = await Models.AkunCabang()
@@ -365,7 +465,7 @@ const updRecid2 = async () => {
     }
 }
 // ======================================================= HARIAN =========================================
-var acuan_kode_cabang = "G004,G025,G034,G097,G030,G149,G146,G148,G158,G174,G301,G305,G177,G224,G232,G234"
+var acuan_kode_cabang = "G004,G025,G034,G097,G030,G149,G146,G148,G158,G174,G301,G305,G177,G224,G232,G234,G236,G237"
 
 const HarianIris = async () => {
     try {
@@ -697,6 +797,6 @@ module.exports = {
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
-    DownloadWT,dataTokoWT
+    DownloadWT,dataTokoWT,DataHarianLebih9
   }
  
