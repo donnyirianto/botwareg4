@@ -19,6 +19,7 @@ var taskOto = true
 var taskExportWT = true
 //var taskUpdRecid = true
 var taskRekapHold = true
+var taskDataHarianjam9 = true
 // LIST CONTACT ======== 
 const group_testbot = `120363038749627074@g.us`
 // const group_ho_pbro = `628999226654-1461653082@g.us`;
