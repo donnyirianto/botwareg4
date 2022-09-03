@@ -685,9 +685,11 @@ async function start(client) {
                     var today2 = dayjs().format("MMDD") 
                     const dataTokoWT = await Controller.dataTokoWT();
                     var pesan =  []
+                    console.log(dataTokoWT)
                     for(r of dataTokoWT){
 
                         const datanyawt = await Controller.DownloadWT(today,r.kdcab,r.kdtk,r.namatoko,`WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)
+                        console.log(datanyawt)
                         pesan.push(datanyawt)
                         
                         if (fs.existsSync(`./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)) {
