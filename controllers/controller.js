@@ -751,7 +751,7 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
             const getWT = await Models.getWT(dtoko.data[0],today)
             
             if(getWT.length > 0 && getWT !="Gagal" && getWT !="Error"){
-                const json2csvParser = new Parser({ delimiter: '|', quote: '' });
+                const json2csvParser = new Parser({ delimiter: '|', quote: '',eol:'\r\n' });
                 const csv = json2csvParser.parse(getWT);
                 //fs.unlinkSync(`./filewt/${namawt}`)
                 
