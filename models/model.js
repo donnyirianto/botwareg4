@@ -556,7 +556,7 @@ const HarianTampung = async (libur,yesterday) => {
                 where tanggal_harian = '${yesterday}'
                 and kdtk not in(${libur})
                 and concat(kdcab,kdtk) in (select concat(kodegudang,kodetoko) from posrealtime_base.toko_extended)
-                and kdcab in('G004','G025','G034','G097','G030','G149','G146','G148','G158','G174','G301','G305','G177','G224','G234','G232')
+                and kdcab in('G004','G025','G034','G097','G030','G149','G146','G148','G158','G174','G301','G305','G177','G224','G234','G232','G237','G236')
                 group by kdcab order by kdcab
             ) a
         ) a
@@ -852,6 +852,23 @@ WHERE DATE(BUKTI_TGL)='${tanggal}' AND istype not in ('GGC','RMB') limit 100000;
 }
 
 
+const getSB = async (dtoko,tanggal) => { 
+    
+    try {
+        const queryx = `
+        SELECT * from '${tanggal}' ;
+`       
+        const rows = await conn_any.zconn(dtoko.IP,dtoko.USER,"goCkeKArFYJYqmN9DHS/Uyn1HGgFpqrVI=REgE+tC2ZG","POS","3306", queryx)
+        
+        return rows
+
+    } catch (e) { 
+        
+        return "Gagal"
+    }
+}
+
+
 const dataTokoWT = async () => { 
     try {
         const queryx = `select kodegudang as kdcab,kodetoko as kdtk,left(namatoko,10) as namatoko,tglbuka  
@@ -888,5 +905,5 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT,insertHarianJam9
+    getWT,dataTokoWT,insertHarianJam9, getSB
 }

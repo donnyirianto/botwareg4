@@ -775,6 +775,39 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
 }
 
 
+const DownloadSB = async (today,kdcab,toko,namatoko,namafile) => {
+    try {  
+        
+        var pesan = ""
+        const dtoko = await Iptoko.bykdtk(kdcab,toko)
+        
+        if(dtoko.data.length > 0 && dtoko.data[0].IP.substr(0,3) != "192"){
+            const getSB = await Models.getSB(dtoko.data[0],today)
+            
+            if(getSB.length > 0 && getSB !="Gagal" && getSB !="Error"){
+                const json2csvParser = new Parser({ delimiter: '|', quote: '',eol:'\r\n' });
+                const csv = json2csvParser.parse(getSB);
+                //fs.unlinkSync(`./filewt/${namawt}`)
+                
+                fs.writeFileSync(`./filesb/${namafile}`, csv);
+                
+                pesan =`*${kdcab}-${toko}-${namatoko} Export File =  Ada Data*`    
+            }else{
+                pesan =`${kdcab}-${toko}-${namatoko} Export File =  Tidak Ada Data`
+            }
+            
+        
+        }else{
+            
+            pesan =`_${kdcab}-${toko}-${namatoko} = IP Tidak Terdaftar_`
+        } 
+        
+        return pesan
+    } catch (e) {
+        return `_${kdcab}-${toko}-${namatoko} = Toko Tidak Dapat Diakses_`
+    }
+}
+
 const dataTokoWT = async () => {
     try {  
         const data = await Models.dataTokoWT() 
@@ -797,6 +830,6 @@ module.exports = {
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
-    DownloadWT,dataTokoWT,DataHarianLebih9
+    DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB
   }
  
