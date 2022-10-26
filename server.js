@@ -741,11 +741,11 @@ async function start(client) {
                         
                     taskExportWT = true
 
-            } catch (err) {
-                    console.log("[END] ERROR !!! Export WT :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskExportWT = true
-                    console.log(err);
-            }
+                } catch (err) {
+                        console.log("[END] ERROR !!! Export WT :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskExportWT = true
+                        console.log(err);
+                }
           } 
     });
 
