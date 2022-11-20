@@ -80,7 +80,7 @@ async function start(client) {
     5 G237 TDHB 2022-08-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
     `
     const IrisNotice = `👋Maaf, Pesan Anda tidak dapat kami proses. silahkan jawab dengan format\n\nKDTK OK \nAtau\nKDTK HOLD\n\n Terima kasih.`
-    
+    console.log(IrisNotice)
     client.onMessage(async (message) => {
         try{
             console.log(message.from);
