@@ -270,21 +270,42 @@ const DataHarianKoneksi = async () => {
        
         }
         const acuan = data_all.toString().replace(/"/g, '')
-        
-        const query_ho_belum = ` 
-                    SELECT a.KodeGudang as kdcab, 
-                        a.Kodetoko as kdtk, a.NamaToko as nama
-                    FROM posrealtime_base.toko_extended a 
-                    LEFT JOIN
-                    (
-                        select kdtk,nama_file 
-                        from m_abs_harian_file 
-                        where tanggal_harian='${tanggal}'
-                    ) b on a.Kodetoko = b.kdtk 
-                    WHERE a.Kodetoko in(${acuan})                     
-                    and b.nama_file is null
-                    order by a.kodegudang
-                `
+        var query_ho_belum="";
+        const [cekTokoExt] = await conn_local.query({ sql: `Select count(*) as total from posrealtime_base.toko_extended` }) 
+        if(cekTokoExt.total > 0){
+
+            query_ho_belum = ` 
+            SELECT a.KodeGudang as kdcab, 
+                a.Kodetoko as kdtk, a.NamaToko as nama
+            FROM posrealtime_base.toko_extended a 
+            LEFT JOIN
+            (
+                select kdtk,nama_file 
+                from m_abs_harian_file 
+                where tanggal_harian='${tanggal}'
+            ) b on a.Kodetoko = b.kdtk 
+            WHERE a.Kodetoko in(${acuan})                     
+            and b.nama_file is null
+            order by a.kodegudang
+        `
+        }
+        else{
+
+            query_ho_belum = ` 
+            SELECT a.KodeGudang as kdcab, 
+                a.Kodetoko as kdtk, a.NamaToko as nama
+            FROM m_toko a 
+            LEFT JOIN
+            (
+                select kdtk,nama_file 
+                from m_abs_harian_file 
+                where tanggal_harian='${tanggal}'
+            ) b on a.Kodetoko = b.kdtk 
+            WHERE a.Kodetoko in(${acuan})                     
+            and b.nama_file is null
+            order by a.kodegudang
+        `
+        }
         
         const [belum] = await conn_local.query({ sql: query_ho_belum })  
      
@@ -652,7 +673,7 @@ const HarianTokoLibur = async () => {
             masuk += parseInt(r.sudah); 
             belum += parseInt(r.belum); 
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur 2022-03-03*\n\n`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur*\n\n`
         const header2 = `*Kdcab | Toko Aktif | Sudah Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${belum} | ${Number(((belum)/toko_aktif * 100).toFixed(2))}%*`
 
