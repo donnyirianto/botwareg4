@@ -406,6 +406,15 @@ const getipiriscab = async (kdcab) => {
         return "Gagal"
     }
 }
+const getipiriscab_reg4 = async (kdcab) => { 
+    try {
+        //
+        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab in('G097','G237','G146','G305','G174','G236','G234','G232','G224','G177','G149','G030','G034','G301','G158','G148','G025','G004')`);
+        return data
+    } catch (e) {
+        return "Gagal"
+    }
+}
 //================================== HARIAN IRIS ==================
 
 
@@ -542,209 +551,97 @@ select a.kdcab,a.toko as kdtk,nama,nama_spv,nama_mgr,tglbuka,
     }
 }
 
-const HarianTampung = async (libur,yesterday) => {
+const HarianTampung_new = async (ipnya,tanggal) => {
     
     try { 
 
-        var query_ho_belum="";
-        const [cekTokoExt] = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended`) 
-        if(cekTokoExt.total > 0){
-
-            const [data] = await conn_ho.query(`select a.kdcab, b.total_toko_aktif,a.TotalFile,
-        if(b.total_toko_aktif - a.TotalFile < 0, 0,(b.total_toko_aktif - a.TotalFile))  as kurang,
-        if(round((b.total_toko_aktif - a.TotalFile)/b.total_toko_aktif * 100,2) < 0,0,round((b.total_toko_aktif - a.TotalFile)/b.total_toko_aktif * 100,2))  as kurang_persen
-        from 
-        (
-            select * from (
-                select kdcab , count(*) TotalFile
-                from m_abs_harian_file 
-                where tanggal_harian = '${yesterday}'
-                and kdtk not in(${libur})
-                and concat(kdcab,kdtk) in (select concat(kodegudang,kodetoko) from posrealtime_base.toko_extended)
-                and kdcab in('G004','G025','G034','G097','G030','G149','G146','G148','G158','G174','G301','G305','G177','G224','G234','G232','G237','G236')
-                group by kdcab order by kdcab
-            ) a
-        ) a
-        left join  
-        (
-            select kodegudang as kdcab, count(*) as total_toko_aktif from 
-            (
-                select kodegudang,kodetoko  from posrealtime_base.toko_extended
-                where (tglbuka <= '${yesterday}' and tglbuka <>'0000-00-00')
-                and kodetoko not in(${libur})
+            let query_ho_rekap =""
+            const queryx = ` 
+                SELECT concat("'",toko,"'") as toko from m_toko
+                where (tglbuka <= '${tanggal}' and tglbuka <>'0000-00-00')
                 and (
                     tok_tgl_tutup is null
-                    or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <  '${yesterday}'
+                    or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <'${tanggal}'
                 )
-                and kodetoko not in
+                and toko not in
                 (
                     select kdtk from 
                     (
-                      select KODE_TOKO as kdtk
-                        from posrealtime_base.toko_ts tt where tgl_tutup= '${yesterday}'
-                        union all
-                        select KODETOKO as kdtk from posrealtime_base.toko_lr tl 
-                        where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${yesterday}') as mingguke),1) ='Y'
-                    ) a group by kdtk
-                )
-                union 
-                select kodegudang,kodetoko  
-                    from posrealtime_base.toko_extended 
-                    where tok_tgl_tutup > '${yesterday}'
-                    and kodetoko not in(${libur})
-                    and kodetoko not in (
-                        select kdtk from 
-                        (
-                          select KODE_TOKO as kdtk
-                            from posrealtime_base.toko_ts tt where tgl_tutup= '${yesterday}'
-                            union all
-                            select KODETOKO as kdtk from posrealtime_base.toko_lr tl 
-                            where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${yesterday}') as mingguke),1) ='Y'
-                        ) a group by kdtk
-                    )
-            ) a 
-            
-            group by kodegudang
-            order by kodegudang
-        ) b on a.kdcab = b.kdcab
-        order by a.kdcab`)
-
-        return data
-        }
-        else{
-
-            const [data] = await conn_ho.query(`select a.kdcab, b.total_toko_aktif,a.TotalFile,
-        if(b.total_toko_aktif - a.TotalFile < 0, 0,(b.total_toko_aktif - a.TotalFile))  as kurang,
-        if(round((b.total_toko_aktif - a.TotalFile)/b.total_toko_aktif * 100,2) < 0,0,round((b.total_toko_aktif - a.TotalFile)/b.total_toko_aktif * 100,2))  as kurang_persen
-        from 
-        (
-            select * from (
-                select kdcab , count(*) TotalFile
-                from m_abs_harian_file 
-                where tanggal_harian = '${yesterday}'
-                and kdtk not in(${libur})
-                and concat(kdcab,kdtk) in (select concat(kodegudang,kodetoko) from posrealtime_base.toko_extended)
-                and kdcab in('G004','G025','G034','G097','G030','G149','G146','G148','G158','G174','G301','G305','G177','G224','G234','G232','G237','G236')
-                group by kdcab order by kdcab
-            ) a
-        ) a
-        left join  
-        (
-            select kodegudang as kdcab, count(*) as total_toko_aktif from 
-            (
-                select kodegudang,kodetoko  from m_toko
-                where (tglbuka <= '${yesterday}' and tglbuka <>'0000-00-00')
-                and kodetoko not in(${libur})
-                and (
-                    tok_tgl_tutup is null
-                    or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <  '${yesterday}'
-                )
-                and kodetoko not in
-                (
-                    select kdtk from 
-                    (
-                      select KODE_TOKO as kdtk
-                        from posrealtime_base.toko_ts tt where tgl_tutup= '${yesterday}'
-                        union all
-                        select KODETOKO as kdtk from posrealtime_base.toko_lr tl 
-                        where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${yesterday}') as mingguke),1) ='Y'
-                    ) a group by kdtk
-                )
-                union 
-                select kodegudang,kodetoko  
-                    from m_toko 
-                    where tok_tgl_tutup > '${yesterday}'
-                    and kodetoko not in(${libur})
-                    and kodetoko not in (
-                        select kdtk from 
-                        (
-                          select KODE_TOKO as kdtk
-                            from posrealtime_base.toko_ts tt where tgl_tutup= '${yesterday}'
-                            union all
-                            select KODETOKO as kdtk from posrealtime_base.toko_lr tl 
-                            where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${yesterday}') as mingguke),1) ='Y'
-                        ) a group by kdtk
-                    )
-            ) a 
-            
-            group by kodegudang
-            order by kodegudang
-        ) b on a.kdcab = b.kdcab
-        order by a.kdcab`)
-
-        return data
-        }
-
-        
-
-    } catch (e) { 
-        return "Gagal"
-    }
-}
-
-const HarianTampungCabang = async (kdcab, libur, yesterday) => {
-    
-    try {
-        const [data] = await conn_ho.query(`select * from 
-        (  
-            select kodegudang,kodetoko,namatoko,mid(aspv_name,12,20) as aspv_name,mid(amgr_name,12,20) as amgr_name 
-            from posrealtime_base.toko_extended
-            WHERE 
-            kodegudang = '${kdcab}'
-            and kodetoko not in(${libur})
-            and (tglbuka <= '${yesterday}' and tglbuka <>'0000-00-00')
-            and (
-                tok_tgl_tutup is null
-                or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <'${yesterday}'
-            )
-            and kodetoko not in
-            (
-                select kdtk from 
-                (
-                  select KODE_TOKO as kdtk
-                    from posrealtime_base.toko_ts tt WHERE tgl_tutup='${yesterday}'
+                    select toko as kdtk
+                    from m_toko_tutup_his where tgl_tutup='${tanggal}'
                     union all
-                    select KODETOKO as kdtk from posrealtime_base.toko_lr tl 
-                    WHERE SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${yesterday}') as mingguke),1) ='Y'
-                ) a group by kdtk
-            )
-            union 
-            select kodegudang,kodetoko,namatoko,mid(aspv_name,12,20) as aspv_name,mid(amgr_name,12,20) as amgr_name  
-            from posrealtime_base.toko_extended 
-            WHERE 
-            kodetoko not in(${libur})
-            and tok_tgl_tutup >'${yesterday}' 
-            and kodegudang = '${kdcab}' and kodetoko not in 
-                (
-                    select kdtk from 
-                    (
-                      select KODE_TOKO as kdtk
-                        from posrealtime_base.toko_ts tt WHERE tgl_tutup='${yesterday}'
-                        union all
-                        select KODETOKO as kdtk from posrealtime_base.toko_lr tl 
-                        WHERE SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${yesterday}') as mingguke),1) ='Y'
+                    select toko as kdtk from m_toko_libur_his
+                    where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${tanggal}') as mingguke),1) ='Y' and tgl_his='${tanggal}'
                     ) a group by kdtk
-                )  
-        ) a 
-        LEFT JOIN
-        ( 
-            select kdcab , kdtk
-            from m_abs_harian_file 
-            where tanggal_harian = '${yesterday}'
-            and kdcab='${kdcab}'
-            and kdtk not in(${libur})
-            and concat(kdcab,kdtk) in (select concat(kodegudang,kodetoko) from posrealtime_base.toko_extended)
-        ) b on a.kodegudang = b.kdcab and a.kodetoko = b.kdtk
-        having b.kdtk is null;
-         `)
-         
-        return data
+                )
+                UNION
+                select concat("'",toko,"'") as toko from m_toko where tok_tgl_tutup >'${tanggal}' 
+                and toko not in (select toko from m_toko_tutup_his where tgl_tutup= '${tanggal}')        
+            ` 
 
+            const cabang  = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, { sql: queryx, rowsAsArray: true })
+            
+            const [cekTokoExt] = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended where kodegudang='${ipnya.kdcab}'`) 
+            
+            if(cekTokoExt[0].total > 0){
+                query_ho_rekap = ` 
+                SELECT kdcab, branch_name as nama,
+                    count(*) as total_toko, 
+                    sum(if(ket ='Sudah',1,0)) as sudah,
+                    sum(if(ket ='Belum',1,0)) as belum
+                FROM (
+                        SELECT a.KodeGudang as kdcab, 
+                            a.Kodetoko as kdtk, a.NamaToko as nama, if(b.nama_file is null,'Belum','Sudah') as ket 
+                        FROM posrealtime_base.toko_extended a 
+                        LEFT JOIN
+                        (
+                            select kdtk,kdcab,nama_file 
+                            from m_abs_harian_file 
+                            where tanggal_harian='${tanggal}'
+                        ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
+                        WHERE a.Kodetoko in(${cabang.toString()})
+                    ) a 
+                    left join m_branch b on a.kdcab =b.branch_code 
+                    group by kdcab
+                `          
+            }else{
+                query_ho_rekap = ` 
+                SELECT kdcab, branch_name as nama,
+                    count(*) as total_toko, 
+                    sum(if(ket ='Sudah',1,0)) as sudah,
+                    sum(if(ket ='Belum',1,0)) as belum
+                FROM (
+                        SELECT a.KodeGudang as kdcab, 
+                            a.Kodetoko as kdtk, a.NamaToko as nama, if(b.nama_file is null,'Belum','Sudah') as ket 
+                        FROM m_toko a 
+                        LEFT JOIN
+                        (
+                            select kdtk,kdcab,nama_file 
+                            from m_abs_harian_file 
+                            where tanggal_harian='${tanggal}'
+                        ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
+                        WHERE a.Kodetoko in(${cabang.toString()})
+                    ) a 
+                    left join m_branch b on a.kdcab =b.branch_code 
+                    group by kdcab
+                `         
+            } 
+            const [rekap] = await conn_ho.query(query_ho_rekap)
+ 
+            return {
+                status : "OK",
+                datarekap : rekap
+            } 
+        
     } catch (e) { 
-        return "Gagal"
+        return {
+                status : "NOK",
+                datarekap : rekap
+            }
     }
 }
 
+  
 const TokoLibur = async (ipnya,tanggal) => { 
     try {
         const queryx = `select kdtk from 
@@ -971,8 +868,8 @@ const insertHarianJam9 = async (data)=>{
 
 
 module.exports = {
-    DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,
-    getipiriscab,HarianIrisCabang,HarianIris,HarianTampung,HarianTampungCabang,TokoLibur,HarianSalah,
+    DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,HarianTampung_new,
+    getipiriscab,HarianIrisCabang,HarianIris,TokoLibur,HarianSalah,
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,

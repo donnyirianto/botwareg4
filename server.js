@@ -77,7 +77,7 @@ async function start(client) {
     1 G001 (ketik 1 KODECABANG untuk Absensi Iris Per Cabang)
     2 G001 (ketik 2 KODECABANG untuk Absensi Tampung Per Cabang)
     4 G001 (ketik 4 KODECABANG untuk Absensi File Harian Toko Libur)
-    5 G237 TDHB 2022-08-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
+    5 G237 TDHB 2023-01-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
     `
     const IrisNotice = `👋Maaf, Pesan Anda tidak dapat kami proses. silahkan jawab dengan format\n\nKDTK OK \nAtau\nKDTK HOLD\n\n Terima kasih.`
     console.log(IrisNotice)
@@ -194,7 +194,7 @@ async function start(client) {
                                 
                                 await client.sendText(message.from, "🕛 Mohon ditunggu, kami sedang proses data");
                                 if(typeof pesan[1] === "undefined"){
-                                    const res2 = await Controller.HarianTampung()
+                                    const res2 = await Controller.HarianTampung_new()
                                     await client.sendText(message.from, res2);
                                 }else{
                                     const res2 = await Controller.HarianTampungCabang(pesan[1])
@@ -649,7 +649,7 @@ async function start(client) {
                     const jam = dayjs().format("HH")
                     if(jam < 10 ){ 
                         
-                        var data_Hr_Tampung = await Controller.HarianTampung();
+                        var data_Hr_Tampung = await Controller.HarianTampung_new();
                         if(data_Hr_Tampung != "None"){
                                 
                             await client.sendText(group_testbot, data_Hr_Tampung); 

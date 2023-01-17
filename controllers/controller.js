@@ -567,81 +567,91 @@ const HarianIrisCabang = async (kdcab) => {
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 }
-
-const HarianTampung = async () => {
+const HarianTampung_new = async () => {
     try {
-        var date =  new Date()
-        var kemarin = date.setDate(date.getDate()-1);
-        var yesterday = dayjs(kemarin).format("YYYY-MM-DD")
-        var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
-        const listtokolibur = []
-        for(var r of acuan_kode_cabang.split(",")){
         
-            var ipnya = await Models.getipiriscab(r)
-            var lib = await Models.TokoLibur(ipnya,yesterday)
-            
-            for (var x of lib) {
-                listtokolibur.push(`'${x.kdtk}'`)
-            } 
-        }  
+        var yesterday = dayjs().add(-1, 'day').format("YYYY-MM-DD")
+        var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
+        
+        var ipnya = await Models.getipiriscab_reg4()
+
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianTampung_new(r, yesterday)
+        })
+        const result = await Promise.allSettled(promise); 
+        
+        let datarekap = [];
+       
+        const hasil = result.map((r)=> {return r.value})
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+ 
         var toko_aktif = 0;
         var masuk = 0; 
-        var tampil_data = []
-        
-        const data = await Models.HarianTampung(listtokolibur.toString(), yesterday)
-        
-        data.map( async (r)=>{
-            tampil_data.push(`${r.kdcab} | ${r.total_toko_aktif} | ${r.TotalFile} | ${r.kurang} | ${r.kurang_persen} `)
-            toko_aktif += r.total_toko_aktif;
-            masuk += r.TotalFile; 
+        var tampil_data = [] 
+
+        datarekap.map( async (r)=>{
+            tampil_data.push(`${r.kdcab} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
+            toko_aktif += parseInt(r.total_toko);
+            masuk += parseInt(r.sudah); 
         })
+
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${yesterday}*\n\n`
         const header2 = `*Kdcab | Toko Aktif | Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_`
+        const respons = `${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         console.log(e)
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 }
+ 
 
 const HarianTampungCabang = async (kdcab) => {
+    
     try {
-        var date =  new Date()
-        var kemarin = date.setDate(date.getDate()-1);
-        var yesterday = dayjs(kemarin).format("YYYY-MM-DD")
+        
+        var yesterday = dayjs().add(-1, 'day').format("YYYY-MM-DD")
         var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
+        
+        var ipnya = await Models.getipiriscab(kdcab)
 
-        const listtokolibur = []
-        for(var r of acuan_kode_cabang.split(",")){
-        
-            var ipnya = await Models.getipiriscab(r)
-            var lib = await Models.TokoLibur(ipnya, yesterday)
-            
-            for (var x of lib) {
-                listtokolibur.push(`'${x.kdtk}'`)
-            }
-        
-        }
-        
-        var tampil_data = []
-        const data = await Models.HarianTampungCabang(kdcab,listtokolibur.toString(),yesterday)
-        var no = 0;
-        
-        data.map( async (r)=>{
-            tampil_data.push(`${no} |${r.kodegudang} | ${r.kodetoko} - ${r.namatoko} | ${r.amgr_name} | ${r.aspv_name} `)
-            no++;
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianTampung_new(r, yesterday)
         })
+        const result = await Promise.allSettled(promise); 
+        
+        let datarekap = [];
+        
+        const hasil = result.map((r)=> {return r.value})
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+    
+        var toko_aktif = 0;
+        var masuk = 0; 
+        var tampil_data = [] 
+
+        datarekap.map( async (r)=>{
+            tampil_data.push(`${r.kdcab} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
+            toko_aktif += parseInt(r.total_toko);
+            masuk += parseInt(r.sudah); 
+        })
+
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${yesterday}*\n\n`
-        const header2 = `*No |Kdcab | Toko | Am | As*\n`
-        const respons = `${header}${header2}${tampil_data.join("% \n")}\n\n_Last Update: ${yesterday2}_`
+        const header2 = `*Kdcab | Toko Aktif | Masuk | Belum Masuk | %* \n`
+        const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
+
+        const respons = `${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
-        
+        console.log(e)
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
+
 }
  
 const HarianTokoLibur = async () => {
@@ -844,7 +854,8 @@ const dataTokoWT = async () => {
 
 module.exports = {
     DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,
-    HarianIris, HarianIrisCabang, HarianTampung , HarianTampungCabang, HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
+    HarianIris, HarianIrisCabang, HarianTampung_new,
+    HarianTampungCabang, HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
     DataPbHoldEDP,
     DataPbHoldCabang,
     AkunCabang,
