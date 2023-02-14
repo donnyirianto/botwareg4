@@ -671,7 +671,7 @@ const HarianTampung_new = async () => {
         const header2 = `*Kdcab | Toko Aktif | HR Masuk | HR Blm Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `${header}${header2} \`\`\`${tampil_data.join("% \n")} \`\`\` \n${footer}\n\n_Last Update: ${yesterday2}_` 
+        const respons = `\`\`\`${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_\`\`\`` 
         return respons
     } catch (e) {
         console.log(e)
