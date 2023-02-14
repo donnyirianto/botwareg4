@@ -1,5 +1,5 @@
 ------------------------------
-Bot Wa Reg 4  V 1.3.0
+Bot Wa Reg 4  V 2.0.0
 ------------------------------
 ---uninstall
 npm uninstall @open-wa/wa-automate mysql2 dayjs dotenv node-cron

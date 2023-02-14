@@ -11,7 +11,9 @@ var taskPBHOLD = true
 var taskGagalRoReg = true
 var taskDataHarianKoneksi = true
 var taskHarianTampung = true 
+var taskHarianTampungAll = true
 var taskHarianIris = true
+var taskHarianIrisAll = true
 var taskPBHOLDEDP = true
 var taskPBHOLDCabang = true
 var taskOto = true
@@ -20,8 +22,10 @@ var taskExportWT = true
 //var taskUpdRecid = true
 var taskRekapHold = true
 var taskDataHarianjam9 = true
+
 // LIST CONTACT ======== 
 const group_testbot = `120363038749627074@g.us`
+const group_iris = `6281998905050-1628158252@g.us`
 // const group_ho_pbro = `628999226654-1461653082@g.us`;
 // pmconst group_ho_igr = `xx628999226654-1461653082@g.us`;
 const group_edpreg_mgrspv = "6287745821811-1585040124@g.us";
@@ -60,8 +64,7 @@ wa.create({
     ]
 }).then(client => start(client));
 
-async function start(client) {
-    
+async function start(client) { 
     
     const Irisshortcut = `👋 *Selamat Datang,*
     *_Silahkan Ketik Angka Berikut Sesuai Format pada Contoh :_*
@@ -698,6 +701,70 @@ async function start(client) {
             }
           } 
     });
+    
+
+    /* =================================================*/
+    //          Report Data Harian Tampung - All Cabang
+    /* =================================================*/
+    cron.schedule('*/30 * * * *', async() => { 
+        //( async() => {    
+          if (taskHarianTampungAll) { 
+            taskHarianTampungAll = false    
+                console.log("[START] Report Harian Tampung All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {         
+                    const jam = dayjs().format("HH")
+                    if(jam < 13 ){ 
+                        
+                        var data_Hr_Tampung = await Controller.HarianTampung_new_allcabang();
+                        if(data_Hr_Tampung != "None"){
+                                
+                            await client.sendText(group_iris, data_Hr_Tampung); 
+                            
+                            console.log("Report Harian Tampung All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }   
+                    }
+                         
+                    console.log("[END] Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianTampungAll = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianTampungAll = true
+                    console.log(err);
+            }
+          } 
+    });
+ 
+    /* =================================================*/
+    //          Report Data Harian IRIS - All Cabang
+    /* =================================================*/
+    cron.schedule('*/45 * * * *', async() => { 
+        //( async() => {    
+          if (taskHarianIrisAll) { 
+            taskHarianIrisAll = false    
+                console.log("[START] Report Harian Iris All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {         
+                    const jam = dayjs().format("HH")
+                    if(jam < 13 ){ 
+                        
+                        var data_Hr_iris = await Controller.HarianIrisAll();
+                        if(data_Hr_iris != "None"){
+                                
+                            await client.sendText(group_iris, data_Hr_iris); 
+                            
+                            console.log("Report Harian Iris All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }    
+                    }
+                         
+                    console.log("[END] Report Harian Iris All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianIrisAll = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! Report Harian Iris All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianIrisAll = true
+                    console.log(err);
+            }
+          } 
+    });
+    
 
 
      /* =================================================*/

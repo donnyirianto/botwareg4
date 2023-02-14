@@ -20,8 +20,7 @@ const zconn = async (host,user,password,database,port, queryx) => {
       return result
     
   } catch (error) {
-    console.log(error)
-    return "Error"
+      return "error"
   }
 }
  

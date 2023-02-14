@@ -88,7 +88,7 @@ const DataRo30Menit = async (kdcab) => {
             const header = `⏱️ *Request Lebih dari 30 Menit*\n\n`
             const footer = `*Bapak2 IT Support 24 Jam, mohon bantuannya untuk pengecekan Request lebih 30 Menit berikut*`
             const header2 = `*No | Kdcab | Toko | Status | Menit* \n`
-            const respons = `${header}${footer}\n\n${header2}${tampil_data.join(" \n")}\n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
+            const respons = `${header}${footer}\n\n${header2} \`\`\`${tampil_data.join(" \n")}\`\`\` \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
             return respons
         }else{
             return "None"
@@ -115,7 +115,7 @@ const DataPbHold = async (kdcab) => {
             const xheader = `*Bapak EDPM mohon dibantu untuk koordinasi dengan OPR atas PBHOLD Berikut* \n`
             const header = `📈 *Request PBHOLD Jagaan 5x SPD* \n\n`
             const header2 = `*No | Kdcab | Toko | PB-FT | AvgSales | ST | Avg Qty 0 | Qty 0 Saat ini* \n`            
-            const respons = `${xheader}${header}${header2}${tampil_data.join(" \n")}\n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
+            const respons = `${xheader}${header}${header2} \`\`\` ${tampil_data.join(" \n")} \`\`\` \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
             return respons
         }else{
             return "None"
@@ -146,8 +146,8 @@ const DataPbHoldCabang = async (kdtk) => {
             const header = `📈 *(${data[0].dc}) ${data[0].toko}*\n`
             const header2 = `*Tanggal PB: ${data[0].tanggal}*\n*PB-FT : ${data[0].nilaipb}*\n*AVG Sales :  ${data[0].avgsales}*\n`            
             const footer = `Untuk mengkonfirmasi, silahkan me-Reply pesan ini dengan format berikut:\n${data[0].toko.substr(0,4)} OK = Untuk mengkonfirmasi di teruskan\ndan\n${data[0].toko.substr(0,4)} HOLD = Untuk mengkonfirmasi Hold/Tidak ada Kiriman `
-            const respons = `${xheader}${header}${header2}\n*_Detail Item_*:\n${tampil_data.join(" \n")}\n\n${footer}`
-            const respons_for_am = `${xheader_for_am}${header}${header2}\n*_Detail Item_*:\n${tampil_data.join(" \n")}\n\n${footer}`
+            const respons = `${xheader}${header}${header2}\n*_Detail Item_*:\n \`\`\`${tampil_data.join(" \n")}\`\`\` \n\n${footer}`
+            const respons_for_am = `${xheader_for_am}${header}${header2}\n*_Detail Item_*:\n \`\`\`${tampil_data.join(" \n")}\`\`\` \n\n${footer}`
             return {
                 data: respons,
                 data_for_am: respons_for_am,
@@ -157,7 +157,7 @@ const DataPbHoldCabang = async (kdtk) => {
             return "None"
         } 
     } catch (e) {
-        //console.log(e)
+        console.log(e)
         return "None"
     }
 } 
@@ -177,7 +177,7 @@ const DataPbHoldEDP = async (kdcab) => {
             const xheader = `Bapak EDP REGION Mohon Dilakukan Pengecekan ST PBHOLD Berikut Belum Sesuai! \n`
             const header = `‼️ Pengecekan PBHOLD Jagaan 5x SPD \n\n`
             const header2 = `*No | Kdcab | Toko | PB-FT | AvgSales | ST | Avg Qty 0 | Qty 0 Saat ini* \n`            
-            const respons = `${xheader}${header}${header2}${tampil_data.join(" \n")}\n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
+            const respons = `${xheader}${header}${header2} ${tampil_data.join(" \n")}\n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
             return respons
         }else{
             return "None"
@@ -448,11 +448,11 @@ const DataHarianLebih9 = async () => {
         })
         
         await Models.insertHarianJam9(tampil_data.join(","));
-        console.log(tampil_data.join(","))
+        
         return "Sukses"
         
     }catch(e){ 
-        console.log(e)
+        
         return "None"
     }
 }
@@ -462,7 +462,7 @@ const AkunCabang = async () => {
         const data = await Models.AkunCabang()
         return data
     } catch (error) {
-        console.log(error)
+        
         return "Error"
     }
 }
@@ -472,7 +472,7 @@ const AkunCabangOto = async () => {
         const data = await Models.AkunCabangOto()
         return data
     } catch (error) {
-        console.log(error)
+        
         return "Error"
     }
 }
@@ -481,7 +481,7 @@ const updRecid2 = async () => {
         const data = await Models.updRecid2()
         return data
     } catch (error) {
-        console.log(error)
+        
         return "Error"
     }
 }
@@ -495,42 +495,111 @@ const HarianIris = async () => {
         var yesterday = dayjs(kemarin).format("YYYY-MM-DD")
         var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
       
-        var tampil_data = []
+        var tampil_data = [] 
         var toko_aktif = 0;
         var proses = 0;
         var blmproses = 0;
         var proses_sales = 0;
         var blmproses_sales = 0; 
 
-        for(var r of acuan_kode_cabang.split(",")){
+        var ipnya = await Models.getipiriscab_reg4()
+
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianIris(r, yesterday)
+        })
+
+        const result = await Promise.allSettled(promise); 
+
+        let datarekap = [];
+        let datarekap_nok = [];
+       
+        const hasil = result.map((r)=> {return r.value})
         
-            var ipnya = await Models.getipiriscab(r)
-            
-            var xd = await Models.HarianIris(ipnya, yesterday)
-            
-            if(xd != "Gagal"){
-                tampil_data.push(`${xd[0].kdcab} | ${xd[0].namacabang} | ${xd[0].total_toko_aktif} | ${xd[0].proses} | ${xd[0].belum_proses} | ${xd[0].proses_sales} | ${xd[0].belum_proses_sales}`)
-                
-                toko_aktif += parseInt(xd[0].total_toko_aktif)
-                proses += parseInt(xd[0].proses)
-                blmproses += parseInt(xd[0].belum_proses)
-                proses_sales += parseInt(xd[0].proses_sales)
-                blmproses_sales += parseInt(xd[0].belum_proses_sales)
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+        hasil.filter((r) => r.status == "NOK").forEach(r => {
+            datarekap_nok.push(r.datarekap)
+        });
 
-            }else{
-                tampil_data.push(`${ipnya.kdcab} | ${ipnya.namacabang} | Gagal Konek Server Iris`)
-            } 
-        }
+        datarekap.map( async (xd)=>{
+            tampil_data.push(`${xd.kdcab}-${xd.namacabang} | ${xd.total_toko_aktif} | ${xd.proses} | ${xd.belum_proses} | ${xd.proses_sales} | ${xd.belum_proses_sales}`)
+            toko_aktif += parseInt(xd.total_toko_aktif)
+            proses += parseInt(xd.proses)
+            blmproses += parseInt(xd.belum_proses)
+            proses_sales += parseInt(xd.proses_sales)
+            blmproses_sales += parseInt(xd.belum_proses_sales)
+        }) 
+ 
         const header = `📚 *Server Iris*\n*Absensi Data Harian ${yesterday}*\n\n`
-        const header2 = `*Kdcab | Nama| Toko Aktif | Proses | Blm Proses | Proses Sales | Blm Proses Sales*\n`
-        const footer = `*Total | - | ${toko_aktif} | ${proses} | ${blmproses} | ${proses_sales}| ${blmproses_sales}*`
-
-        const respons = `${header}${header2}${tampil_data.join("\n")}\n${footer}\n\n_Last Update: ${yesterday2}_`
+        const header2 = `*Kdcab | Toko Aktif | Proses | Blm Proses | Proses Sales | Blm Proses Sales*\n`
+        const footer = `*Grand Total | ${toko_aktif} | ${proses} | ${blmproses} | ${proses_sales}| ${blmproses_sales}*`
+        let irisnok= ""
+        if(datarekap_nok.length > 0){
+            irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
+        } 
+        const respons = `\`\`\`${header}${header2}${tampil_data.join("\n")}\n${footer}${irisnok}\n\n_Last Update: ${yesterday2}_\`\`\``
         
         return respons
-    } catch (e) { 
-        
+    } catch (e) {  
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
+    }
+}
+const HarianIrisAll = async () => {
+    try {
+        var date =  new Date()
+        var kemarin = date.setDate(date.getDate()-1);
+        var yesterday = dayjs(kemarin).format("YYYY-MM-DD")
+        var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
+      
+        var tampil_data = [] 
+        var toko_aktif = 0;
+        var proses = 0;
+        var blmproses = 0;
+        var proses_sales = 0;
+        var blmproses_sales = 0; 
+
+        var ipnya = await Models.getipiriscab_allcabang()
+        
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianIris(r, yesterday)
+        })
+
+        const result = await Promise.allSettled(promise); 
+
+        let datarekap = [];
+        let datarekap_nok = [];
+       
+        const hasil = result.map((r)=> {return r.value})
+        
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+        hasil.filter((r) => r.status == "NOK").forEach(r => {
+            datarekap_nok.push(r.datarekap)
+        });
+
+        datarekap.map( async (xd)=>{
+            tampil_data.push(`${xd.kdcab}-${xd.namacabang} | ${xd.total_toko_aktif} | ${xd.proses} | ${xd.belum_proses} | ${xd.proses_sales} | ${xd.belum_proses_sales}`)
+            toko_aktif += parseInt(xd.total_toko_aktif)
+            proses += parseInt(xd.proses)
+            blmproses += parseInt(xd.belum_proses)
+            proses_sales += parseInt(xd.proses_sales)
+            blmproses_sales += parseInt(xd.belum_proses_sales)
+        }) 
+ 
+        const header = `📚 *Server Iris*\n*Absensi Data Harian ${yesterday}*\n\n`
+        const header2 = `*Kdcab | Toko Aktif | Proses | Blm Proses | Proses Sales | Blm Proses Sales*\n`
+        const footer = `*Grand Total | ${toko_aktif} | ${proses} | ${blmproses} | ${proses_sales}| ${blmproses_sales}*`
+        let irisnok= ""
+        if(datarekap_nok.length > 0){
+            irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
+        } 
+        const respons = `\`\`\`${header}${header2}${tampil_data.join("\n")}\n${footer}${irisnok}\n\n_Last Update: ${yesterday2}_\`\`\``
+        
+        return respons
+    } catch (e) {  
+        return "None"
     }
 }
 const HarianIrisCabang = async (kdcab) => {
@@ -559,7 +628,7 @@ const HarianIrisCabang = async (kdcab) => {
         const header = `📚 *Server Iris*\n*Absensi Data Harian ${yesterday}*\n\n`
         const header2 = `*Kdcab | Kdtk | Nama | Amgr | Aspv*\n`
 
-        const respons = `${header}${header2}${tampil_data.join("\n")}\n\n_Last Update: ${yesterday2}_`
+        const respons = `${header}${header2} \`\`\`${tampil_data.join("\n")} \`\`\` \n\n_Last Update: ${yesterday2}_`
         
         return respons
     } catch (e) {
@@ -583,6 +652,7 @@ const HarianTampung_new = async () => {
         let datarekap = [];
        
         const hasil = result.map((r)=> {return r.value})
+        
         hasil.filter((r) => r.status == "OK").forEach(r => {
             r.datarekap.map( r => datarekap.push(r) )
         });
@@ -592,23 +662,64 @@ const HarianTampung_new = async () => {
         var tampil_data = [] 
 
         datarekap.map( async (r)=>{
-            tampil_data.push(`${r.kdcab} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
+            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
             toko_aktif += parseInt(r.total_toko);
             masuk += parseInt(r.sudah); 
         })
 
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${yesterday}*\n\n`
-        const header2 = `*Kdcab | Toko Aktif | Masuk | Belum Masuk | %* \n`
+        const header2 = `*Kdcab | Toko Aktif | HR Masuk | HR Blm Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
+        const respons = `${header}${header2} \`\`\`${tampil_data.join("% \n")} \`\`\` \n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         console.log(e)
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 }
+const HarianTampung_new_allcabang = async () => {
+    try {
+        
+        var yesterday = dayjs().add(-1, 'day').format("YYYY-MM-DD")
+        var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
+        
+        var ipnya = await Models.getipiriscab_allcabang()
+
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianTampung_new(r, yesterday)
+        })
+        const result = await Promise.allSettled(promise); 
+        
+        let datarekap = [];
+       
+        const hasil = result.map((r)=> {return r.value})
+
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
  
+        var toko_aktif = 0;
+        var masuk = 0; 
+        var tampil_data = [] 
+
+        datarekap.map( async (r)=>{
+            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
+            toko_aktif += parseInt(r.total_toko);
+            masuk += parseInt(r.sudah); 
+        })
+
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian ${yesterday}*\n\n`
+        const header2 = `*Kdcab | Toko Aktif | HR Masuk | HR Blm Masuk | %* \n`
+        const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
+
+        const respons = `\`\`\`${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_\`\`\`` 
+        return respons
+    } catch (e) {
+        
+        return "None"
+    }
+}
 
 const HarianTampungCabang = async (kdcab) => {
     
@@ -645,7 +756,7 @@ const HarianTampungCabang = async (kdcab) => {
         const header2 = `*Kdcab | Toko Aktif | Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
+        const respons = `${header}${header2} \`\`\`${tampil_data.join("% \n")}\`\`\` \n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         console.log(e)
@@ -691,7 +802,6 @@ const HarianTokoLibur = async () => {
         return respons
 
     } catch (e) {
-        console.log(e)
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!" 
     }
 }
@@ -744,7 +854,7 @@ const HarianTokoLiburCabang = async (kdcab) => {
         return respons
 
     } catch (e) {
-        console.log(e)
+        
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!" 
     }
 }
@@ -854,8 +964,9 @@ const dataTokoWT = async () => {
 
 module.exports = {
     DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,
-    HarianIris, HarianIrisCabang, HarianTampung_new,
-    HarianTampungCabang, HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
+    HarianIris,HarianIrisAll, HarianIrisCabang, 
+    HarianTampung_new,HarianTampung_new_allcabang,HarianTampungCabang, 
+    HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
     DataPbHoldEDP,
     DataPbHoldCabang,
     AkunCabang,

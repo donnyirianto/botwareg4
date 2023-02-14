@@ -409,9 +409,19 @@ const getipiriscab = async (kdcab) => {
 const getipiriscab_reg4 = async (kdcab) => { 
     try {
         //
-        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab in('G097','G237','G146','G305','G174','G236','G234','G232','G224','G177','G149','G030','G034','G301','G158','G148','G025','G004')`);
+        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab in('G097','G237','G146','G305','G174','G236','G234','G232','G224','G177','G149','G030','G034','G301','G158','G148','G025','G004') order by kdcab`);
         return data
     } catch (e) {
+        return "Gagal"
+    }
+}
+const getipiriscab_allcabang = async () => { 
+    try {
+        //
+        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' order by kdcab`);
+        return data
+    } catch (e) {
+        console.log(e)
         return "Gagal"
     }
 }
@@ -419,9 +429,10 @@ const getipiriscab_reg4 = async (kdcab) => {
 
 
 const HarianIris = async (ipnya,yesterday) => { 
+    
     try {
         const queryx = `
-        select kdcab,'${ipnya[0].namacabang}' as namacabang, count(*) as total_toko_aktif,
+        select kdcab,'${ipnya.namacabang}' as namacabang, count(*) as total_toko_aktif,
 sum(if(proses ='Sudah Proses',1,0))  as proses,
 sum(if(proses !='Sudah Proses',1,0))  as belum_proses,
 sum(if(proses_dt ='Sudah Proses',1,0))  as proses_sales,
@@ -476,13 +487,24 @@ select a.kdcab,a.toko as kdtk,nama,nama_spv,nama_mgr,tglbuka,
             ) a
         ) c on a.toko = c.kdtk 
 ) a ;  ` 
-        const rows = await conn_any.zconn(ipnya[0].ipserver,ipnya[0].user,ipnya[0].pass,ipnya[0].database, 3306, queryx)
+        const rows = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, queryx)
         
-        return rows
+        if(rows ==="error")
+            return {
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Server Tidak Dapat Diakses`
+            }
 
-    } catch (e) {
-        
-        return "Gagal"
+        return {
+            status : "OK",
+            datarekap : rows
+        } 
+    
+    } catch (e) {  
+        return {
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Iris Down`
+            }
     }
 }
 
@@ -633,10 +655,9 @@ const HarianTampung_new = async (ipnya,tanggal) => {
                 datarekap : rekap
             } 
         
-    } catch (e) { 
+    } catch (e) {  
         return {
-                status : "NOK",
-                datarekap : rekap
+                status : "NOK"
             }
     }
 }
@@ -868,7 +889,7 @@ const insertHarianJam9 = async (data)=>{
 
 
 module.exports = {
-    DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,HarianTampung_new,
+    DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,getipiriscab_allcabang,HarianTampung_new,
     getipiriscab,HarianIrisCabang,HarianIris,TokoLibur,HarianSalah,
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
