@@ -693,11 +693,16 @@ const HarianTampung_new_allcabang = async () => {
         const result = await Promise.allSettled(promise); 
         
         let datarekap = [];
+        let datarekap_nok = [];
        
         const hasil = result.map((r)=> {return r.value})
 
         hasil.filter((r) => r.status == "OK").forEach(r => {
             r.datarekap.map( r => datarekap.push(r) )
+        });
+
+        hasil.filter((r) => r.status == "NOK").forEach(r => {
+            datarekap_nok.push(r.datarekap)
         });
  
         var toko_aktif = 0;
@@ -713,8 +718,11 @@ const HarianTampung_new_allcabang = async () => {
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${yesterday}*\n\n`
         const header2 = `*Kdcab | Toko Aktif | HR Masuk | HR Blm Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
-
-        const respons = `${header}${header2}${tampil_data.join("\n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
+        let irisnok= ""
+        if(datarekap_nok.length > 0){
+            irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
+        } 
+        const respons = `${header}${header2}${tampil_data.join("\n")}${irisnok}\n\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         console.log(e)
