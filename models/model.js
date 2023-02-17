@@ -418,7 +418,7 @@ const getipiriscab_reg4 = async (kdcab) => {
 const getipiriscab_allcabang = async () => { 
     try {
         //
-        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' order by reg,kdcab`);
+        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab != 'G099' order by reg,kdcab`);
         return data
     } catch (e) {
         console.log(e)
@@ -648,16 +648,23 @@ const HarianTampung_new = async (ipnya,tanggal) => {
                     group by kdcab
                 `         
             } 
-            const [rekap] = await conn_ho.query(query_ho_rekap)
+            const [rows] = await conn_ho.query(query_ho_rekap)
  
+            if(rows ==="error")
             return {
-                status : "OK",
-                datarekap : rekap
-            } 
-        
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Server Tidak Dapat Diakses`
+            }
+
+        return {
+            status : "OK",
+            datarekap : rows
+        } 
+    
     } catch (e) {  
         return {
-                status : "NOK"
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Iris Down`
             }
     }
 }
