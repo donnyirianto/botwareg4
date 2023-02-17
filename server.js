@@ -709,7 +709,7 @@ async function start(client) {
     /* =================================================*/
     //          Report Data Harian Tampung - All Cabang
     /* =================================================*/
-    cron.schedule('58 3,4,5,6,7,8,9,10 * * *', async() => { 
+    cron.schedule('58 3,4,5,6,7,8,9,10,11 * * *', async() => { 
         //( async() => {    
           if (taskHarianTampungAll) { 
             taskHarianTampungAll = false    
