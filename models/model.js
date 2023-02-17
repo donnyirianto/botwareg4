@@ -418,7 +418,7 @@ const getipiriscab_reg4 = async (kdcab) => {
 const getipiriscab_allcabang = async () => { 
     try {
         //
-        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' order by kdcab`);
+        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' order by reg,kdcab`);
         return data
     } catch (e) {
         console.log(e)

@@ -88,7 +88,7 @@ const DataRo30Menit = async (kdcab) => {
             const header = `⏱️ *Request Lebih dari 30 Menit*\n\n`
             const footer = `*Bapak2 IT Support 24 Jam, mohon bantuannya untuk pengecekan Request lebih 30 Menit berikut*`
             const header2 = `*No | Kdcab | Toko | Status | Menit* \n`
-            const respons = `${header}${footer}\n\n${header2} \`\`\`${tampil_data.join(" \n")}\`\`\` \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
+            const respons = `${header}${footer}\n\n${header2} ${tampil_data.join(" \n")} \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
             return respons
         }else{
             return "None"
@@ -115,7 +115,7 @@ const DataPbHold = async (kdcab) => {
             const xheader = `*Bapak EDPM mohon dibantu untuk koordinasi dengan OPR atas PBHOLD Berikut* \n`
             const header = `📈 *Request PBHOLD Jagaan 5x SPD* \n\n`
             const header2 = `*No | Kdcab | Toko | PB-FT | AvgSales | ST | Avg Qty 0 | Qty 0 Saat ini* \n`            
-            const respons = `${xheader}${header}${header2} \`\`\` ${tampil_data.join(" \n")} \`\`\` \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
+            const respons = `${xheader}${header}${header2}  ${tampil_data.join(" \n")}  \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
             return respons
         }else{
             return "None"
@@ -146,8 +146,8 @@ const DataPbHoldCabang = async (kdtk) => {
             const header = `📈 *(${data[0].dc}) ${data[0].toko}*\n`
             const header2 = `*Tanggal PB: ${data[0].tanggal}*\n*PB-FT : ${data[0].nilaipb}*\n*AVG Sales :  ${data[0].avgsales}*\n`            
             const footer = `Untuk mengkonfirmasi, silahkan me-Reply pesan ini dengan format berikut:\n${data[0].toko.substr(0,4)} OK = Untuk mengkonfirmasi di teruskan\ndan\n${data[0].toko.substr(0,4)} HOLD = Untuk mengkonfirmasi Hold/Tidak ada Kiriman `
-            const respons = `${xheader}${header}${header2}\n*_Detail Item_*:\n \`\`\`${tampil_data.join(" \n")}\`\`\` \n\n${footer}`
-            const respons_for_am = `${xheader_for_am}${header}${header2}\n*_Detail Item_*:\n \`\`\`${tampil_data.join(" \n")}\`\`\` \n\n${footer}`
+            const respons = `${xheader}${header}${header2}\n*_Detail Item_*:\n ${tampil_data.join(" \n")} \n\n${footer}`
+            const respons_for_am = `${xheader_for_am}${header}${header2}\n*_Detail Item_*:\n ${tampil_data.join(" \n")} \n\n${footer}`
             return {
                 data: respons,
                 data_for_am: respons_for_am,
@@ -538,7 +538,7 @@ const HarianIris = async () => {
         if(datarekap_nok.length > 0){
             irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
         } 
-        const respons = `\`\`\`${header}${header2}${tampil_data.join("\n")}\n${footer}${irisnok}\n\n_Last Update: ${yesterday2}_\`\`\``
+        const respons = `${header}${header2}${tampil_data.join("\n")}\n${footer}${irisnok}\n\n_Last Update: ${yesterday2}_`
         
         return respons
     } catch (e) {  
@@ -595,10 +595,11 @@ const HarianIrisAll = async () => {
         if(datarekap_nok.length > 0){
             irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
         } 
-        const respons = `\`\`\`${header}${header2}${tampil_data.join("\n")}\n${footer}${irisnok}\n\n_Last Update: ${yesterday2}_\`\`\``
+        const respons = `${header}${header2}${tampil_data.join("\n")} \n${footer}${irisnok}\n\n_Last Update: ${yesterday2}_`
         
         return respons
     } catch (e) {  
+        console.log(e)
         return "None"
     }
 }
@@ -628,7 +629,7 @@ const HarianIrisCabang = async (kdcab) => {
         const header = `📚 *Server Iris*\n*Absensi Data Harian ${yesterday}*\n\n`
         const header2 = `*Kdcab | Kdtk | Nama | Amgr | Aspv*\n`
 
-        const respons = `${header}${header2} \`\`\`${tampil_data.join("\n")} \`\`\` \n\n_Last Update: ${yesterday2}_`
+        const respons = `${header}${header2} ${tampil_data.join("\n")}  \n\n_Last Update: ${yesterday2}_`
         
         return respons
     } catch (e) {
@@ -662,7 +663,7 @@ const HarianTampung_new = async () => {
         var tampil_data = [] 
 
         datarekap.map( async (r)=>{
-            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
+            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) }%`)
             toko_aktif += parseInt(r.total_toko);
             masuk += parseInt(r.sudah); 
         })
@@ -671,7 +672,7 @@ const HarianTampung_new = async () => {
         const header2 = `*Kdcab | Toko Aktif | HR Masuk | HR Blm Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `\`\`\`${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_\`\`\`` 
+        const respons = `${header}${header2}${tampil_data.join("\n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         console.log(e)
@@ -704,7 +705,7 @@ const HarianTampung_new_allcabang = async () => {
         var tampil_data = [] 
 
         datarekap.map( async (r)=>{
-            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
+            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2))}%`)
             toko_aktif += parseInt(r.total_toko);
             masuk += parseInt(r.sudah); 
         })
@@ -713,10 +714,10 @@ const HarianTampung_new_allcabang = async () => {
         const header2 = `*Kdcab | Toko Aktif | HR Masuk | HR Blm Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `\`\`\`${header}${header2}${tampil_data.join("% \n")}\n${footer}\n\n_Last Update: ${yesterday2}_\`\`\`` 
+        const respons = `${header}${header2}${tampil_data.join("\n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
-        
+        console.log(e)
         return "None"
     }
 }
@@ -756,7 +757,7 @@ const HarianTampungCabang = async (kdcab) => {
         const header2 = `*Kdcab | Toko Aktif | Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
 
-        const respons = `${header}${header2} \`\`\`${tampil_data.join("% \n")}\`\`\` \n${footer}\n\n_Last Update: ${yesterday2}_` 
+        const respons = `${header}${header2} ${tampil_data.join("% \n")} \n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         console.log(e)

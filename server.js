@@ -40,8 +40,8 @@ const user_reg4_putra = `6283847102754@c.us`
 
 // ================================
 wa.create({
-    sessionId: "EDPREG4mlg",
-    multiDevice: true, //required to enable multiDevice support
+    sessionId: "RnDREG4",
+    multiDevice: false, //required to enable multiDevice support
     authTimeout: 0, //wait only 60 seconds to get a connection with the host account device
     blockCrashLogs: true,
     disableSpins: true,
@@ -53,15 +53,15 @@ wa.create({
     restartOnCrash: start, 
     cacheEnabled: false, 
     useChrome: true, 
-    killProcessOnBrowserClose: true, 
-    throwErrorOnTosBlock: false, 
-    chromiumArgs: [ '--no-sandbox', 
+    //killProcessOnBrowserClose: true, 
+    //throwErrorOnTosBlock: false, 
+   /*  chromiumArgs: [ '--no-sandbox', 
                     '--disable-setuid-sandbox', 
                     '--aggressive-cache-discard', 
                     '--disable-cache', '--disable-application-cache', 
                     '--disable-offline-load-stale-cache', 
                     '--disk-cache-size=0' 
-    ]
+    ] */
 }).then(client => start(client));
 
 async function start(client) { 
@@ -82,8 +82,10 @@ async function start(client) {
     4 G001 (ketik 4 KODECABANG untuk Absensi File Harian Toko Libur)
     5 G237 TDHB 2023-01-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
     `
-    const IrisNotice = `👋Maaf, Pesan Anda tidak dapat kami proses. silahkan jawab dengan format\n\nKDTK OK \nAtau\nKDTK HOLD\n\n Terima kasih.`
+    const IrisNotice = `👋 Halo`
     console.log(IrisNotice)
+    client.sendText(user_reg4_donny, "Service Bot WA - Running");
+
     client.onMessage(async (message) => {
         try{
             console.log(message.from);
@@ -176,6 +178,7 @@ async function start(client) {
 
                         switch (pesan[0]) {
                             case 'START':
+                                console.log("Ada Pesan Start")
                                 await client.sendText(message.from, Irisshortcut);
                                 
                                 break;  
@@ -706,14 +709,14 @@ async function start(client) {
     /* =================================================*/
     //          Report Data Harian Tampung - All Cabang
     /* =================================================*/
-    cron.schedule('*/30 * * * *', async() => { 
+    cron.schedule('58 3,4,5,6,7,8,9,10 * * *', async() => { 
         //( async() => {    
           if (taskHarianTampungAll) { 
             taskHarianTampungAll = false    
                 console.log("[START] Report Harian Tampung All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {         
                     const jam = dayjs().format("HH")
-                    if(jam < 13 ){ 
+                    if(jam < 11 ){ 
                         
                         var data_Hr_Tampung = await Controller.HarianTampung_new_allcabang();
                         if(data_Hr_Tampung != "None"){
@@ -721,7 +724,9 @@ async function start(client) {
                             await client.sendText(group_iris, data_Hr_Tampung); 
                             
                             console.log("Report Harian Tampung All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
-                        }   
+                        }else{
+                            console.log("Report Harian Tampung All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }  
                     }
                          
                     console.log("[END] Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
@@ -729,7 +734,7 @@ async function start(client) {
             } catch (err) {
                     console.log("[END] ERROR !!! Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     taskHarianTampungAll = true
-                    console.log(err);
+                    console.log('Error Kirim Harian All::' + err);
             }
           } 
     });
@@ -737,14 +742,14 @@ async function start(client) {
     /* =================================================*/
     //          Report Data Harian IRIS - All Cabang
     /* =================================================*/
-    cron.schedule('*/45 * * * *', async() => { 
+    cron.schedule('55 3,4,5,6,7,8,9,10 * * *', async() => { 
         //( async() => {    
           if (taskHarianIrisAll) { 
             taskHarianIrisAll = false    
                 console.log("[START] Report Harian Iris All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {         
                     const jam = dayjs().format("HH")
-                    if(jam < 13 ){ 
+                    if(jam < 11 ){ 
                         
                         var data_Hr_iris = await Controller.HarianIrisAll();
                         if(data_Hr_iris != "None"){
@@ -752,6 +757,8 @@ async function start(client) {
                             await client.sendText(group_iris, data_Hr_iris); 
                             
                             console.log("Report Harian Iris All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }else{
+                            console.log("Report Harian Iris All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         }    
                     }
                          
