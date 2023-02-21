@@ -157,7 +157,7 @@ const DataPbHoldCabang = async (kdtk) => {
             return "None"
         } 
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -183,7 +183,7 @@ const DataPbHoldEDP = async (kdcab) => {
             return "None"
         } 
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -210,7 +210,7 @@ const DataGagalRoReg = async (kdcab) => {
             return "None"
         } 
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -320,7 +320,7 @@ const DataHarianKoneksi = async () => {
             
             const a = belum.map(v => Object.assign({}, v));
             const b = keterangan.map(v => Object.assign({}, v));
-            console.log(a,b)
+            
             const mergeById = (a1, a2) =>
                 a1.map(itm => (
                         {
@@ -339,7 +339,7 @@ const DataHarianKoneksi = async () => {
                 no++;
             }            
         })
-        console.log(tampil_data.sort((a, b) => (a.kdcab > b.kdcab ? 1 : 1)).toString())
+        //console.log(tampil_data.sort((a, b) => (a.kdcab > b.kdcab ? 1 : 1)).toString())
         if(tampil_data.toString().length > 10){
             const xheader = `*FYI: Bapak2 EDPM mohon bantuannya atas kendala koneksi toko berikut* \n`
             const header = `🛠️ *Data Harian Belum Masuk* \n\n`
@@ -352,7 +352,7 @@ const DataHarianKoneksi = async () => {
         
         
     }catch(e){ 
-        console.log(e)
+        
         return "None"
     }
 }
@@ -430,7 +430,7 @@ const DataHarianLebih9 = async () => {
             
             const a = belum.map(v => Object.assign({}, v));
             const b = keterangan.map(v => Object.assign({}, v));
-            console.log(a,b)
+            
             const mergeById = (a1, a2) =>
                 a1.map(itm => (
                         {
@@ -599,7 +599,7 @@ const HarianIrisAll = async () => {
         
         return respons
     } catch (e) {  
-        console.log(e)
+        
         return "None"
     }
 }
@@ -633,7 +633,7 @@ const HarianIrisCabang = async (kdcab) => {
         
         return respons
     } catch (e) {
-        console.log(e)
+        
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 }
@@ -675,7 +675,7 @@ const HarianTampung_new = async () => {
         const respons = `${header}${header2}${tampil_data.join("\n")}\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
-        console.log(e)
+        
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 }
@@ -725,7 +725,7 @@ const HarianTampung_new_allcabang = async () => {
         const respons = `${header}${header2}${tampil_data.join("\n")}${irisnok}\n\n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 }
@@ -768,7 +768,7 @@ const HarianTampungCabang = async (kdcab) => {
         const respons = `${header}${header2} ${tampil_data.join("% \n")} \n${footer}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
-        console.log(e)
+        
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
     }
 
