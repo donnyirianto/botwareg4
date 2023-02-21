@@ -14,12 +14,12 @@ function numberWithCommas(x) {
 const TeruskanPB = async (toko) => { 
     try {
       
-            const result = await Models.TeruskanPB(toko) 
-            return result
+        const result = await Models.TeruskanPB(toko) 
+        return result
         
         
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -43,7 +43,7 @@ const HoldPB = async (toko) => {
             return result  
        
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -54,7 +54,7 @@ const cekCabang = async (idgroup) => {
         
         return cekcabang       
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -94,7 +94,7 @@ const DataRo30Menit = async (kdcab) => {
             return "None"
         } 
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
@@ -121,7 +121,7 @@ const DataPbHold = async (kdcab) => {
             return "None"
         } 
     } catch (e) {
-        console.log(e)
+        
         return "None"
     }
 } 
