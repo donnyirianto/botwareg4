@@ -41,7 +41,7 @@ const user_reg4_putra = `6283847102754@c.us`
 // ================================
 wa.create({
     sessionId: "RnDREG4",
-    multiDevice: false, //required to enable multiDevice support
+    multiDevice: true, //required to enable multiDevice support
     authTimeout: 0, //wait only 60 seconds to get a connection with the host account device
     blockCrashLogs: true,
     disableSpins: true,
