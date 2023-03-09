@@ -40,28 +40,36 @@ const user_reg4_putra = `6283847102754@c.us`
 
 // ================================
 wa.create({
-    sessionId: "RnDREG4",
+    sessionId: "RnD",
     multiDevice: true, //required to enable multiDevice support
-    authTimeout: 0, //wait only 60 seconds to get a connection with the host account device
+    authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
     blockCrashLogs: true,
     disableSpins: true,
     headless: true,
     hostNotificationLang: 'PT_BR',
-    logConsole: true,
+    logConsole: false,
     popup: true,
     qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
-    restartOnCrash: start, 
-    cacheEnabled: false, 
-    useChrome: true, 
-    //killProcessOnBrowserClose: true, 
+    // authTimeout: 0, //wait only 60 seconds to get a connection with the host account device
+    // blockCrashLogs: true,
+    // disableSpins: true,
+    // headless: true,
+    // hostNotificationLang: 'PT_BR',
+    // logConsole: true,
+    // popup: true,
+    // qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
+    // restartOnCrash: start, 
+    // cacheEnabled: false, 
+    // useChrome: true, 
+    // killProcessOnBrowserClose: true, 
     //throwErrorOnTosBlock: false, 
-   /*  chromiumArgs: [ '--no-sandbox', 
-                    '--disable-setuid-sandbox', 
-                    '--aggressive-cache-discard', 
-                    '--disable-cache', '--disable-application-cache', 
-                    '--disable-offline-load-stale-cache', 
-                    '--disk-cache-size=0' 
-    ] */
+    // chromiumArgs: [ '--no-sandbox', 
+    //                 '--disable-setuid-sandbox', 
+    //                 '--aggressive-cache-discard', 
+    //                 '--disable-cache', '--disable-application-cache', 
+    //                 '--disable-offline-load-stale-cache', 
+    //                 '--disk-cache-size=0' 
+    // ]
 }).then(client => start(client));
 
 async function start(client) { 
@@ -84,8 +92,14 @@ async function start(client) {
     `
     const IrisNotice = `👋 Halo`
     console.log(IrisNotice)
-    client.sendText(user_reg4_donny, "Service Bot WA - Running");
-
+    try {
+        await client.sendText(user_reg4_donny, "Service Bot WA - Running");
+    } catch (error) {
+        console.log(`Start Error:` + error)
+    }
+    
+    console.log(`Lewat Func Send Hello`)
+    
     client.onMessage(async (message) => {
         try{
             console.log(message.from);
