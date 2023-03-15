@@ -740,7 +740,7 @@ const HarianTampungCabang = async (kdcab) => {
         var ipnya = await Models.getipiriscab(kdcab)
 
         const promise = ipnya.map((r)=>{ 
-            return Models.HarianTampung_new(r, yesterday)
+            return Models.HarianTampungCabang_new(r, yesterday)
         })
         const result = await Promise.allSettled(promise); 
         
@@ -751,21 +751,15 @@ const HarianTampungCabang = async (kdcab) => {
             r.datarekap.map( r => datarekap.push(r) )
         });
     
-        var toko_aktif = 0;
-        var masuk = 0; 
         var tampil_data = [] 
 
         datarekap.map( async (r)=>{
-            tampil_data.push(`${r.kdcab} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2)) } `)
-            toko_aktif += parseInt(r.total_toko);
-            masuk += parseInt(r.sudah); 
+            tampil_data.push(`${r.kdcab} | ${r.kdtk}-${r.nama}`)
         })
 
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${yesterday}*\n\n`
-        const header2 = `*Kdcab | Toko Aktif | Masuk | Belum Masuk | %* \n`
-        const footer = `*Total | ${toko_aktif} | ${masuk} | ${toko_aktif - masuk} | ${Number(((toko_aktif - masuk)/toko_aktif * 100).toFixed(2))}%*`
-
-        const respons = `${header}${header2} ${tampil_data.join("% \n")} \n${footer}\n\n_Last Update: ${yesterday2}_` 
+        const header2 = `*Kdcab | Toko* \n` 
+        const respons = `${header}${header2}${tampil_data.join("\n")}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
         

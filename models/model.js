@@ -669,6 +669,88 @@ const HarianTampung_new = async (ipnya,tanggal) => {
     }
 }
 
+const HarianTampungCabang_new = async (ipnya,tanggal) => {
+    
+    try { 
+
+            let query_ho_rekap =""
+            const queryx = ` 
+                SELECT concat("'",toko,"'") as toko from m_toko
+                where (tglbuka <= '${tanggal}' and tglbuka <>'0000-00-00')
+                and (
+                    tok_tgl_tutup is null
+                    or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <'${tanggal}'
+                )
+                and toko not in
+                (
+                    select kdtk from 
+                    (
+                    select toko as kdtk
+                    from m_toko_tutup_his where tgl_tutup='${tanggal}'
+                    union all
+                    select toko as kdtk from m_toko_libur_his
+                    where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${tanggal}') as mingguke),1) ='Y' and tgl_his='${tanggal}'
+                    ) a group by kdtk
+                )
+                UNION
+                select concat("'",toko,"'") as toko from m_toko where tok_tgl_tutup >'${tanggal}' 
+                and toko not in (select toko from m_toko_tutup_his where tgl_tutup= '${tanggal}')        
+            ` 
+
+            const cabang  = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, { sql: queryx, rowsAsArray: true })
+            
+            const [cekTokoExt] = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended where kodegudang='${ipnya.kdcab}'`) 
+            
+            if(cekTokoExt[0].total > 0){
+                query_ho_rekap = ` 
+                SELECT a.KodeGudang as kdcab, 
+                            a.Kodetoko as kdtk, a.NamaToko as nama, if(b.nama_file is null,'Belum','Sudah') as ket 
+                        FROM posrealtime_base.toko_extended a 
+                        LEFT JOIN
+                        (
+                            select kdtk,kdcab,nama_file 
+                            from m_abs_harian_file 
+                            where tanggal_harian='${tanggal}'
+                        ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
+                        WHERE a.Kodetoko in(${cabang.toString()})
+                        having ket = 'Belum'
+                `          
+            }else{
+                query_ho_rekap = ` 
+                SELECT a.KodeGudang as kdcab, 
+                            a.Kodetoko as kdtk, a.NamaToko as nama, if(b.nama_file is null,'Belum','Sudah') as ket 
+                        FROM m_toko a 
+                        LEFT JOIN
+                        (
+                            select kdtk,kdcab,nama_file 
+                            from m_abs_harian_file 
+                            where tanggal_harian='${tanggal}'
+                        ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
+                        WHERE a.Kodetoko in(${cabang.toString()})
+                        having ket = 'Belum'
+                `         
+            } 
+            const [rows] = await conn_ho.query(query_ho_rekap)
+ 
+            if(rows ==="error")
+            return {
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Server Tidak Dapat Diakses`
+            }
+
+        return {
+            status : "OK",
+            datarekap : rows
+        } 
+    
+    } catch (e) {  
+        return {
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Iris Down`
+            }
+    }
+}
+
   
 const TokoLibur = async (ipnya,tanggal) => { 
     try {
@@ -832,7 +914,13 @@ const getWT = async (dtoko,tanggal) => {
     
     try {
         const queryx = `
-        SELECT IFNULL(A.RECID,'') AS RECID,LEFT(A.RTYPE,1) AS RTYPE,A.BUKTI_NO AS DOCNO,A.SEQNO,if(length(B.CAT_COD)=6,MID(B.CAT_COD,3,2),MID(B.CAT_COD,2,2)) AS \`DIV\`,A.PRDCD,A.QTY,A.PRICE,A.GROSS,CR_TERM AS CTERM,A.INVNO AS DOCNO2,A.ISTYPE,A.INVNO,IF((RTYPE='BPB' AND ISTYPE='') OR RTYPE IN ('I','O') OR (RTYPE='K' AND ISTYPE<>'L'),GUDANG,IF((RTYPE='BPB' AND ISTYPE<>'') OR (RTYPE='K' AND ISTYPE='L'),A.SUPCO,IF(RTYPE='X' AND (ISTYPE='' OR ISTYPE IN ('BM','KO')),(SELECT TOKO FROM TOKO),IF(RTYPE='X' AND (ISTYPE LIKE '%BA%' OR ISTYPE LIKE '%SO%') AND A.SUPCO='',(SELECT TOKO FROM TOKO),IF(RTYPE='X' AND (ISTYPE LIKE '%BA%' OR ISTYPE LIKE '%SO%') AND A.SUPCO<>'',A.SUPCO,'XXX'))))) AS TOKO,DATE_FORMAT(A.BUKTI_TGL,'%y%m%d') AS \`DATE\`,'0' AS DATE2,A.KETER AS KETERANGAN,B.PTAG,B.CAT_COD,'01' AS LOKASI,DATE_FORMAT(A.BUKTI_TGL,'%d-%m-%Y') AS TGL1,DATE_FORMAT(A.INV_DATE,'%d-%m-%Y') AS TGL2,A.PPN,'' AS TOKO_1,'' AS DATE3,'' AS DOCNO3,(SELECT KDTK FROM TOKO) AS SHOP,A.PRICE_IDM,'0' AS PPNBM_IDM,A.PPN_RP_IDM AS PPNRP_IDM,IFNULL(A.LT,'') AS LT,IFNULL(A.RAK,'') AS RAK,IFNULL(A.BAR,'') AS BAR,IF(A.BKP="Y",'T','F') AS BKP,IFNULL(A.SUB_BKP,' ') AS SUB_BKP,A.PRDCD AS PLUMD,A.GROSS_JUAL,A.PRICE_JUAL,IFNULL(C.KODE_SUPPLIER,'') AS KODE_SUPPLIER,A.DISC_05 AS DISC05,ifnull(ppn_rate,0) RATE_PPN,time(bukti_tgl) JAM
+        SELECT IFNULL(A.RECID,'') AS RECID,LEFT(A.RTYPE,1) AS RTYPE,
+        A.BUKTI_NO AS DOCNO,A.SEQNO,if(length(B.CAT_COD)=6,MID(B.CAT_COD,3,2),MID(B.CAT_COD,2,2)) AS \`DIV\`,
+        A.PRDCD,A.QTY,A.PRICE,A.GROSS,CR_TERM AS CTERM,A.INVNO AS DOCNO2,A.ISTYPE,
+        A.PO_NO AS INVNO,
+        IF((RTYPE='BPB' AND ISTYPE='') OR RTYPE IN ('I','O') OR (RTYPE='K' AND ISTYPE<>'L'),
+        GUDANG,
+        IF((RTYPE='BPB' AND ISTYPE<>'') OR (RTYPE='K' AND ISTYPE='L'),A.SUPCO,IF(RTYPE='X' AND (ISTYPE='' OR ISTYPE IN ('BM','KO')),(SELECT TOKO FROM TOKO),IF(RTYPE='X' AND (ISTYPE LIKE '%BA%' OR ISTYPE LIKE '%SO%') AND A.SUPCO='',(SELECT TOKO FROM TOKO),IF(RTYPE='X' AND (ISTYPE LIKE '%BA%' OR ISTYPE LIKE '%SO%') AND A.SUPCO<>'',A.SUPCO,'XXX'))))) AS TOKO,DATE_FORMAT(A.BUKTI_TGL,'%y%m%d') AS \`DATE\`,'0' AS DATE2,A.KETER AS KETERANGAN,B.PTAG,B.CAT_COD,'01' AS LOKASI,DATE_FORMAT(A.BUKTI_TGL,'%d-%m-%Y') AS TGL1,DATE_FORMAT(A.INV_DATE,'%d-%m-%Y') AS TGL2,A.PPN,'' AS TOKO_1,'' AS DATE3,'' AS DOCNO3,(SELECT KDTK FROM TOKO) AS SHOP,A.PRICE_IDM,'0' AS PPNBM_IDM,A.PPN_RP_IDM AS PPNRP_IDM,IFNULL(A.LT,'') AS LT,IFNULL(A.RAK,'') AS RAK,IFNULL(A.BAR,'') AS BAR,IF(A.BKP="Y",'T','F') AS BKP,IFNULL(A.SUB_BKP,' ') AS SUB_BKP,A.PRDCD AS PLUMD,A.GROSS_JUAL,A.PRICE_JUAL,IFNULL(C.KODE_SUPPLIER,'') AS KODE_SUPPLIER,A.DISC_05 AS DISC05,ifnull(ppn_rate,0) RATE_PPN,time(bukti_tgl) JAM
 FROM MSTRAN A LEFT JOIN PRODMAST B ON A.PRDCD=B.PRDCD
 LEFT JOIN SUPMAST C ON A.SUPCO=C.SUPCO
 WHERE DATE(BUKTI_TGL)='${tanggal}' AND istype not in ('GGC','RMB') limit 100000;
@@ -902,7 +990,8 @@ const insertHarianJam9 = async (data)=>{
 
 
 module.exports = {
-    DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,getipiriscab_allcabang,HarianTampung_new,
+    DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,getipiriscab_allcabang,
+    HarianTampung_new,HarianTampungCabang_new,
     getipiriscab,HarianIrisCabang,HarianIris,TokoLibur,HarianSalah,
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
