@@ -4,7 +4,7 @@ const dayjs = require("dayjs");
 ( async() => { 
     
   
-  const data = await Controller.HarianTokoLiburCabang('g146')
+  const data = await Controller.HarianTokoLiburToko('F08C')
   
   console.log(data)
   

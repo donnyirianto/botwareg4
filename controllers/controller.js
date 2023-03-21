@@ -868,6 +868,40 @@ const HarianTokoLiburCabang = async (kdcab) => {
     }
 }
 
+
+ 
+const HarianTokoLiburToko = async (kdtk) => {
+    try {
+       
+        var today = ""
+        var now = new Date();
+        const jam = dayjs(now).format("HH")
+        const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
+        if(jam < 8 ){
+            var date =  new Date()
+            var yesterday = date.setDate(date.getDate()-1);
+            today = dayjs(yesterday).format("YYYY-MM-DD")
+        }else{
+            var yesterday = now
+            today = dayjs(now).format("YYYY-MM-DD")
+        }
+ 
+        const data = await Models.HarianTokoLiburToko(kdtk,today)
+        let tampil_data = []
+        data.map( async (r)=>{
+            tampil_data.push(`*${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}* | ${r.keterangan}`)
+        })
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian*\n\n` 
+
+        const respons = `${header}\n*AM | AS | Nama Toko | Status*\n${tampil_data.join("\n")}\n\n_Last Update: ${sekarang}_`
+        return respons
+
+    } catch (e) {
+        console.log(e)
+        return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!" 
+    }
+}
+
 const HarianSalah = async () => {
     try {
         var date =  new Date()
@@ -977,7 +1011,7 @@ module.exports = {
     HarianTampung_new,HarianTampung_new_allcabang,HarianTampungCabang, 
     HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
     DataPbHoldEDP,
-    DataPbHoldCabang,
+    DataPbHoldCabang,HarianTokoLiburToko,
     AkunCabang,
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,

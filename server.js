@@ -232,10 +232,13 @@ async function start(client) {
                                     if(typeof pesan[1] === "undefined"){
                                         const res4 = await Controller.HarianTokoLibur()
                                         await client.sendText(message.from, res4);
+                                    }else if(typeof pesan[2] != "undefined"){
+                                        res4 = await Controller.HarianTokoLiburToko(pesan[2])
+                                        await client.sendText(message.from, res4);
                                     }else{
                                         const res4 = await Controller.HarianTokoLiburCabang(pesan[1])
                                         await client.sendText(message.from, res4);
-                                    } 
+                                    }
                                     break; 
                             
                             case '5':

@@ -872,6 +872,30 @@ const HarianTokoLiburCabang = async (kdcab,tanggal) => {
     }
 }
 
+const HarianTokoLiburToko = async (kdtk,tanggal) => { 
+    try {
+        const queryx = `select 
+        a.toko,a.nama,a.kdam,a.kdas, if(c.nama_file is null,'Belum Terkirim ke Server','Sudah Terkirim ke Server') as keterangan
+        from
+        m_toko_libur_acuan a
+        left join
+        posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
+        left join
+        m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
+        where
+        a.recid=''
+        and a.toko='${kdtk}'
+        and a.tanggal = '${tanggal}';`
+        const [belum] = await conn_ho.query(queryx)
+          
+        return belum
+
+    } catch (e) {  
+        console.log(e)
+        return "Gagal"
+    }
+}
+
 
 const HarianTokoLiburCabangAm = async (kdcab,yesterday) => { 
     try {
@@ -1020,5 +1044,5 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT,insertHarianJam9, getSB
+    getWT,dataTokoWT,insertHarianJam9, getSB,HarianTokoLiburToko
 }
