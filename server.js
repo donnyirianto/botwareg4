@@ -76,6 +76,7 @@ async function start(client) {
     
     const Irisshortcut = `👋 *Selamat Datang,*
     *_Silahkan Ketik Angka Berikut Sesuai Format pada Contoh :_*
+    HR. Pengecekan Data Harian
     1. Server Iris 
     2. Server Tampung 
     3. Peletakan File Harian Salah Server
@@ -83,6 +84,7 @@ async function start(client) {
     5. Download WT Toko
 
     *_Contoh:_*
+    HR T000 (ketik HR KODETOKO untuk Absensi Harian Server)
     1 (ketik 1 untuk Absensi Iris)
     2 (ketik 2 untuk Absensi Server Tampung)
     1 G001 (ketik 1 KODECABANG untuk Absensi Iris Per Cabang)
@@ -233,7 +235,7 @@ async function start(client) {
                                         const res4 = await Controller.HarianTokoLibur()
                                         await client.sendText(message.from, res4);
                                     }else if(typeof pesan[2] != "undefined"){
-                                        res4 = await Controller.HarianTokoLiburToko(pesan[2])
+                                        const res4 = await Controller.cekHarianToko(pesan[2])
                                         await client.sendText(message.from, res4);
                                     }else{
                                         const res4 = await Controller.HarianTokoLiburCabang(pesan[1])
@@ -263,6 +265,16 @@ async function start(client) {
                                         
                                     } 
                                     break;
+                            case 'HR':
+                                console.log(`Ada cek HR`)
+                                await client.sendText(message.from, "🕛 Mohon ditunggu, kami sedang proses data");
+                                if(typeof pesan[1] != "undefined"){
+                                    const res_cek = await Controller.cekHarianToko(pesan[1])
+                                    await client.sendText(message.from, res_cek);
+                                }else{
+                                    await client.sendText(message.from, `Format Salah, silahkan cek kembali pesan Anda.`);
+                                }
+                                break; 
                 
                             default:
                                 console.log("GROUP IRIS : No Data")

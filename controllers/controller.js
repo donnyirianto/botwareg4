@@ -775,7 +775,7 @@ const HarianTokoLibur = async () => {
         var now = new Date();
         const jam = dayjs(now).format("HH")
         const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
-        if(jam < 8 ){
+        if(jam < 14 ){
             var date =  new Date()
             var yesterday = date.setDate(date.getDate()-1);
             today = dayjs(yesterday).format("YY-MM-DD")
@@ -816,7 +816,7 @@ const HarianTokoLiburCabang = async (kdcab) => {
         var now = new Date();
         const jam = dayjs(now).format("HH")
         const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
-        if(jam < 8 ){
+        if(jam < 14 ){
             var date =  new Date()
             var yesterday = date.setDate(date.getDate()-1);
             today = dayjs(yesterday).format("YYYY-MM-DD")
@@ -870,14 +870,14 @@ const HarianTokoLiburCabang = async (kdcab) => {
 
 
  
-const HarianTokoLiburToko = async (kdtk) => {
+const cekHarianToko = async (kdtk) => {
     try {
        
         var today = ""
         var now = new Date();
         const jam = dayjs(now).format("HH")
         const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
-        if(jam < 8 ){
+        if(jam < 14 ){
             var date =  new Date()
             var yesterday = date.setDate(date.getDate()-1);
             today = dayjs(yesterday).format("YYYY-MM-DD")
@@ -886,14 +886,13 @@ const HarianTokoLiburToko = async (kdtk) => {
             today = dayjs(now).format("YYYY-MM-DD")
         }
  
-        const data = await Models.HarianTokoLiburToko(kdtk,today)
+        const data = await Models.cekHarianToko(kdtk,today)
         let tampil_data = []
         data.map( async (r)=>{
-            tampil_data.push(`*${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}* | ${r.keterangan}`)
+            tampil_data.push(`Toko  : ${r.kdtk}-${r.nama}\nAM    : ${r.amgr_name} \nAS    : ${r.aspv_name}\nStatus: ${r.keterangan}`)
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian*\n\n` 
-
-        const respons = `${header}\n*AM | AS | Nama Toko | Status*\n${tampil_data.join("\n")}\n\n_Last Update: ${sekarang}_`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian*` 
+        const respons = `${header}\n\n${tampil_data.join("\n")}\n\n_Last Update: ${sekarang}_`
         return respons
 
     } catch (e) {
@@ -1011,7 +1010,7 @@ module.exports = {
     HarianTampung_new,HarianTampung_new_allcabang,HarianTampungCabang, 
     HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
     DataPbHoldEDP,
-    DataPbHoldCabang,HarianTokoLiburToko,
+    DataPbHoldCabang,cekHarianToko,
     AkunCabang,
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
