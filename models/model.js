@@ -793,7 +793,7 @@ const HarianSalah = async (yesterday) => {
 
 const HarianTokoLibur = async (yesterday) => { 
     try {
-        const queryx = `select a.kdcab,
+        const queryx = `select a.kdcab,branch_name as nama,
         count(*) as total_toko,
             sum(if(c.nama_file is not null,1,0)) as sudah,
             sum(if(c.nama_file is null,1,0)) as belum
@@ -803,14 +803,13 @@ const HarianTokoLibur = async (yesterday) => {
             posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
             left join
             m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
+            left join m_branch d on a.kdcab = d.branch_code
             where
             a.recid=''
             and a.tanggal='${yesterday}'
             group by a.kdcab
             order by belum desc;`
-        const [rows] = await conn_ho.query(queryx)
-        console.log(queryx)
-        
+        const [rows] = await conn_ho.query(queryx)        
         return rows
 
     } catch (e) { 
@@ -819,28 +818,55 @@ const HarianTokoLibur = async (yesterday) => {
     }
 }
 
-const HarianTokoLiburCabang = async (kdcab,yesterday) => { 
+const HarianTokoLiburCabang = async (kdcab,tanggal) => { 
     try {
-        const queryx = `select a.*,b.namatoko,
-            substr(b.amgr_name,12,10) as amgr_name,substr(b.aspv_name,12,10) as aspv_name ,
-            c.nama_file       
-            from
-            m_toko_libur_acuan a
-            left join
-            posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
-            left join
-            m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
-            where
-            a.recid=''
-            and a.kdcab='${kdcab}'
-            and a.tanggal = '${yesterday}'
-            and c.nama_file is null
-            order by amgr_name,aspv_name,toko;`
-        const [rows] = await conn_ho.query(queryx)
+        const queryx = `select 
+        a.toko,a.nama,a.kdam,a.kdas, '-' as keterangan
+        from
+        m_toko_libur_acuan a
+        left join
+        posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
+        left join
+        m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
+        where
+        a.recid=''
+        and a.kdcab='${kdcab}'
+        and a.tanggal = '${tanggal}'
+        and c.nama_file is null
+        order by kdam,kdas,toko;`
+        const [belum] = await conn_ho.query(queryx)
         
-        return rows
+        // const detail = belum.map( (r) =>{
+        //     return `'${r.toko}'`
+        // }).toString()
 
-    } catch (e) { 
+        // const a = belum.map(v => Object.assign({}, v));
+
+        // const keterquery = `select toko as kdtk,SUBSTRING_INDEX(SUBSTRING_INDEX(\`log\`, '|', 1), '.',-1) as keterangan from temp_cek_clos_toko where tanggal='${tanggal}' and toko in(${detail})`
+        
+        // const keterangan  = await conn_any.zconn("192.168.131.50","edp1","abcd@1234","management_co", 3306, { sql: keterquery })
+        
+        // if(keterangan != "error"){ 
+            
+        //     const b = keterangan.map(v => Object.assign({}, v));
+    
+        //     const mergeById = (a1, a2) =>
+        //         a1.map(itm => (
+        //                 {
+        //                     ...itm,
+        //                     ...a2.find((item) => (item.kdtk === itm.toko) && item)
+                            
+        //                 }
+        //             )
+        //         )
+        
+        //     detailbelum = mergeById(a, b)  
+        // }else{
+        //     detailbelum = a
+        // }
+        return belum
+
+    } catch (e) {  
         console.log(e)
         return "Gagal"
     }
@@ -867,14 +893,13 @@ const HarianTokoLiburCabangAm = async (kdcab,yesterday) => {
         a.recid=''
         and a.kdcab='${kdcab}'
         and a.tanggal = '${yesterday}'
-        GROUP BY am) a order by persen_belum desc,total desc
+        GROUP BY am) a order by belum desc
         ;`
         const [rows] = await conn_ho.query(queryx)
         
         return rows
 
     } catch (e) { 
-        console.log(e)
         return "Gagal"
     }
 }
@@ -905,7 +930,6 @@ from(
         return rows
 
     } catch (e) { 
-        console.log(e)
         return "Gagal"
     }
 }

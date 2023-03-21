@@ -775,7 +775,7 @@ const HarianTokoLibur = async () => {
         var now = new Date();
         const jam = dayjs(now).format("HH")
         const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
-        if(jam < 14 ){
+        if(jam < 8 ){
             var date =  new Date()
             var yesterday = date.setDate(date.getDate()-1);
             today = dayjs(yesterday).format("YY-MM-DD")
@@ -792,12 +792,12 @@ const HarianTokoLibur = async () => {
         const data = await Models.HarianTokoLibur(today)
         
         data.map( async (r)=>{
-            tampil_data.push(`${r.kdcab} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2))}%`)
+            tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2))}%`)
             toko_aktif += r.total_toko;
             masuk += parseInt(r.sudah); 
             belum += parseInt(r.belum); 
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur*\n\n`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur 2023-03-22*\n\n`
         const header2 = `*Kdcab | Toko Aktif | Sudah Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${belum} | ${Number(((belum)/toko_aktif * 100).toFixed(2))}%*`
 
@@ -816,13 +816,13 @@ const HarianTokoLiburCabang = async (kdcab) => {
         var now = new Date();
         const jam = dayjs(now).format("HH")
         const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
-        if(jam < 14 ){
+        if(jam < 8 ){
             var date =  new Date()
             var yesterday = date.setDate(date.getDate()-1);
-            today = dayjs(yesterday).format("YY-MM-DD")
+            today = dayjs(yesterday).format("YYYY-MM-DD")
         }else{
             var yesterday = now
-            today = dayjs(now).format("YY-MM-DD")
+            today = dayjs(now).format("YYYY-MM-DD")
         }
 
         var no = 1;
@@ -844,16 +844,22 @@ const HarianTokoLiburCabang = async (kdcab) => {
         })
 
         const data = await Models.HarianTokoLiburCabang(kdcab,today)
-        
-        data.map( async (r)=>{
-            tampil_data.push(`${no} |${r.kdcab} | ${r.toko}-${r.namatoko} | ${r.amgr_name} | ${r.aspv_name}`)
-            no++;
-        })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur ${yesterday}*\n\n`
-        const header_am = `*No | AM | Total Toko | Sudah | % | Belum | %* \n`
-        const header2 = `Detail Toko Data Harian Belum Masuk\n*No | Kdcab | Nama Toko | AM | AS* \n`
+        for (let i = 0; i < data.length; i++) {
+            if (i > 0 && data[i].kdam !== data[i-1].kdam) {
+                tampil_data.push("\n*AM | AS | Nama Toko*");
+            } else {
+                tampil_data.push(`${data[i].kdam} | ${data[i].kdas} | _${data[i].toko}-${data[i].nama}_`)
+            }
+          }
+        // console.log(newArray)
+        // data.map( async (r)=>{
+        //     tampil_data.push(`*${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}* | ${r.keterangan}`)
+        // })
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur 2023-03-22*\nCabang: ${kdcab.toUpperCase()}\n\n`
+        const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
+        const header2 = `_Detail Toko Data Harian Belum Terkirim ke Server Tampung_\n\n*AM | AS | Nama Toko*\n`
 
-        const respons = `${header}${header_am}${tampil_am.join("\n")}\n${tampil_am_footer}\n\n${header2}${tampil_data.join("\n")}\n\n_ Last Update: ${sekarang} _`
+        const respons = `${header}${header_am}${tampil_am.join("\n")}\n${tampil_am_footer}\n\n${header2}${tampil_data.join("\n")}\n\n_Last Update: ${sekarang}_`
         return respons
 
     } catch (e) {

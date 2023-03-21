@@ -11,4 +11,7 @@ filewt
 **.data.json
 **.node-persist**
 **_IGNORE_**
+a.txt
+testsb.js
+testwt.js
 # end managed by open-wa
