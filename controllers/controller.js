@@ -844,17 +844,17 @@ const HarianTokoLiburCabang = async (kdcab) => {
         })
 
         const data = await Models.HarianTokoLiburCabang(kdcab,today)
-        for (let i = 0; i < data.length; i++) {
-            if (i > 0 && data[i].kdam !== data[i-1].kdam) {
-                tampil_data.push("\n*AM | AS | Nama Toko*");
-            } else {
-                tampil_data.push(`${data[i].kdam} | ${data[i].kdas} | _${data[i].toko}-${data[i].nama}_`)
-            }
-          }
+        // for (let i = 0; i < data.length; i++) {
+        //     if (i > 0 && data[i].kdam !== data[i-1].kdam) {
+        //         tampil_data.push("\n*AM | AS | Nama Toko*");
+        //     } else {
+        //         tampil_data.push(`${data[i].kdam} | ${data[i].kdas} | _${data[i].toko}-${data[i].nama}_`)
+        //     }
+        //   }
         // console.log(newArray)
-        // data.map( async (r)=>{
-        //     tampil_data.push(`*${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}* | ${r.keterangan}`)
-        // })
+        data.map( async (r)=>{
+            tampil_data.push(`${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}`)
+        })
         const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur 2023-03-22*\nCabang: ${kdcab.toUpperCase()}\n\n`
         const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
         const header2 = `_Detail Toko Data Harian Belum Terkirim ke Server Tampung_\n\n*AM | AS | Nama Toko*\n`
