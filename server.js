@@ -19,6 +19,7 @@ var taskPBHOLDCabang = true
 var taskOto = true
 var taskOto = true
 var taskExportWT = true
+var taskPbbhTampung = true
 //var taskUpdRecid = true
 var taskRekapHold = true
 var taskDataHarianjam9 = true
@@ -30,7 +31,7 @@ const group_iris = `6281998905050-1628158252@g.us`
 // pmconst group_ho_igr = `xx628999226654-1461653082@g.us`;
 const group_edpreg_mgrspv = "6287745821811-1585040124@g.us";
 const user_reg4_imam = `6285855835780@c.us`
-const user_reg4_donny = `6282137098104@c.us`
+const user_reg4_donny = `6281359925756@c.us`
 const user_reg4_panca = `6282230158808@c.us`
 const user_reg4_gama = `6281999186169@c.us`
 const user_reg4_fariz = `628563600323@c.us`
@@ -852,6 +853,38 @@ async function start(client) {
           } 
     });
 
+    /* =================================================*/
+    //          Report Data Harian Tampung
+    /* =================================================*/
+    
+    //cron.schedule('*/45 * * * *', async() => { 
+    /*( async() => {    
+          if (taskPbbhTampung) { 
+            taskPbbhTampung = false    
+                console.log("[START] Report Harian Tampung: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {         
+                    
+                        
+                    var datapbbhTampung = await Controller.absenPbbh();
+                    if(datapbbhTampung != "None"){
+                            
+                        
+                        await client.sendText(group_testbot, datapbbhTampung);   
+                        await client.sendText(group_edpreg_mgrspv, datapbbhTampung);  
+                        
+                        console.log("Report PBBH Tampung :: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                    }
+                         
+                    console.log("[END] Report PBBH Tampung :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskPbbhTampung = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! Report PBBH Tampung :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskPbbhTampung = true
+                    console.log(err);
+            }
+          } 
+    });
+    */
     
      
 }

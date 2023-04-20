@@ -406,7 +406,7 @@ const getipiriscab = async (kdcab) => {
         return "Gagal"
     }
 }
-const getipiriscab_reg4 = async (kdcab) => { 
+const getipiriscab_reg4 = async () => { 
     try {
         //
         const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab in('G097','G237','G146','G305','G174','G236','G234','G232','G224','G177','G149','G030','G034','G301','G158','G148','G025','G004') order by kdcab`);
@@ -1034,6 +1034,82 @@ const insertHarianJam9 = async (data)=>{
     }
 }
 
+const absenPbbh = async (ipnya,tanggal) => {
+    
+    try { 
+
+            let query_ho_rekap =""
+            const queryx = ` 
+                SELECT concat("'",toko,"'") as toko from m_toko
+                where (tglbuka <= '${tanggal}' and tglbuka <>'0000-00-00')
+                and (
+                    tok_tgl_tutup is null
+                    or tok_tgl_tutup in('', '0000-00-00') and tok_tgl_tutup <'${tanggal}'
+                )
+                and toko not in
+                (
+                    select kdtk from 
+                    (
+                    select toko as kdtk
+                    from m_toko_tutup_his where tgl_tutup='${tanggal}'
+                    union all
+                    select toko as kdtk from m_toko_libur_his
+                    where SUBSTR(HARILIBUR,(SELECT DAYOFWEEK('${tanggal}') as mingguke),1) ='Y' and tgl_his='${tanggal}'
+                    ) a group by kdtk
+                )
+                UNION
+                select concat("'",toko,"'") as toko from m_toko where tok_tgl_tutup >'${tanggal}' 
+                and toko not in (select toko from m_toko_tutup_his where tgl_tutup= '${tanggal}')        
+            ` 
+
+            const cabang  = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, { sql: queryx, rowsAsArray: true })
+             
+            query_ho_rekap = ` 
+            SELECT a.KodeGudang as kdcab, '${ipnya.initial}' as nama,
+            count(a.kodetoko) as total_toko,
+            sum(if(b.nama_file is null,0,1)) as harian_sudah,
+            sum(if(b.nama_file is null,1,0)) as harian_belum,
+            sum(if(c.nama_file is null,0,1)) as pbbh_sudah,
+            sum(if(c.nama_file is null,1,0)) as pbbh_belum
+            FROM posrealtime_base.toko_extended a 
+            LEFT JOIN
+            (
+                select kdtk,kdcab,nama_file 
+                from m_abs_harian_file 
+                where tanggal_harian='${tanggal}'
+            ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
+            LEFT JOIN
+            (
+                select kdtk,kdcab,nama_file 
+                from m_abs_pbbh_file 
+                where tanggal_pbbh='${tanggal}'
+            ) c on a.Kodetoko = c.kdtk AND a.kodegudang = c.kdcab
+            WHERE a.kodetoko in(${cabang.toString()})
+            group by a.kodegudang,nama
+            `          
+            
+            const [rows] = await conn_ho.query(query_ho_rekap)
+            
+            if(rows ==="error"){
+                return {
+                    status : "NOK",
+                    datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Server Tidak Dapat Diakses`
+                }
+            }
+            
+
+        return {
+            status : "OK",
+            datarekap : rows
+        } 
+    
+    } catch (e) {  
+        return {
+                status : "NOK",
+                datarekap : `${ipnya.kdcab} - ${ipnya.namacabang} :: Iris Down`
+            }
+    }
+}
 
 module.exports = {
     DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,getipiriscab_allcabang,
@@ -1042,5 +1118,5 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko
+    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh
 }

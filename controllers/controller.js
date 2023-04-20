@@ -1003,7 +1003,69 @@ const dataTokoWT = async () => {
 }
 
 
+const absenPbbh = async () => {
+    try {
+        const jam = dayjs().format("HH")
+        var yesterday = ""
+        if(jam > 20 ){ 
+            yesterday = dayjs().format("YYYY-MM-DD")
+        }else{
+            yesterday = dayjs().add(-1, 'day').format("YYYY-MM-DD")
+        }
+        
+        //var yesterday = dayjs().format("YYYY-MM-DD")
+        
+        var ipnya = await Models.getipiriscab_reg4()
 
+        const promise = ipnya.map((r)=>{ 
+            return Models.absenPbbh(r, yesterday)
+        })
+        const result = await Promise.allSettled(promise); 
+        
+        let datarekap = [];
+        let datarekap_nok = [];
+       
+        const hasil = result.map((r)=> {return r.value})
+
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+
+        hasil.filter((r) => r.status == "NOK").forEach(r => {
+            datarekap_nok.push(r.datarekap)
+        });
+ 
+        var toko_aktif = 0;
+        var harian_sudah = 0; 
+        var harian_belum = 0; 
+        var pbbh_sudah = 0; 
+        var pbbh_belum = 0; 
+        var tampil_data = [] 
+
+        datarekap.map( async (r)=>{
+            tampil_data.push(`\`\`\`${r.kdcab}-${r.nama}|${r.total_toko}|${r.pbbh_sudah}|${r.pbbh_belum}|${r.harian_sudah}|${r.harian_belum}\`\`\``)
+            toko_aktif += parseInt(r.total_toko);
+            harian_sudah += parseInt(r.harian_sudah);
+            harian_belum += parseInt(r.harian_belum);
+            pbbh_sudah += parseInt(r.pbbh_sudah);
+            pbbh_belum += parseInt(r.pbbh_belum); 
+        })
+        
+        const header = `📚 *Server Tampung*\n*Absensi File PBBH Tgl ${yesterday}*\n\n`
+        const header2 = `\`\`\`Kdcab|Toko Aktif|PBBH Sudah|PBBH Blm|HR Sudah|HR Blm\`\`\`\n`
+        const footer = `\`\`\`Total|${toko_aktif}|${pbbh_sudah}|${pbbh_belum}|${harian_sudah}|${harian_belum}\`\`\``
+        let irisnok= ""
+        if(datarekap_nok.length > 0){
+            irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
+        } 
+        const respons = `${header}${header2}${tampil_data.join("\n")}${irisnok}\n\n${footer}\n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm")}_`
+        
+        return respons
+    } catch (e) {
+        console.log(e)
+        return "None"
+    }
+}
 module.exports = {
     DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,
     HarianIris,HarianIrisAll, HarianIrisCabang, 
@@ -1015,6 +1077,6 @@ module.exports = {
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
-    DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB
+    DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB,absenPbbh
   }
  

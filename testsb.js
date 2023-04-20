@@ -4,7 +4,7 @@ const dayjs = require("dayjs");
 ( async() => { 
     
   
-  const data = await Controller.cekHarianToko('F08C')
+  const data = await Controller.absenPbbh()
   
   console.log(data)
   
