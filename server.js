@@ -14,12 +14,14 @@ var taskHarianTampung = true
 var taskHarianTampungAll = true
 var taskHarianIris = true
 var taskHarianIrisAll = true
+var taskHarianIrisAllImage = true
 var taskPBHOLDEDP = true
 var taskPBHOLDCabang = true
 var taskOto = true
 var taskOto = true
 var taskExportWT = true
 var taskPbbhTampung = true
+var taskHarianTampungAllImage = true
 //var taskUpdRecid = true
 var taskRekapHold = true
 var taskDataHarianjam9 = true
@@ -34,9 +36,11 @@ const user_reg4_imam = `6285855835780@c.us`
 const user_reg4_donny = `6281359925756@c.us`
 const user_reg4_panca = `6282230158808@c.us`
 const user_reg4_gama = `6281999186169@c.us`
-const user_reg4_fariz = `628563600323@c.us`
 const user_reg4_rianto = `6285645595869@c.us`
 const user_reg4_putra = `6283847102754@c.us`
+const user_reg4_richy = `6283877399089@c.us`
+const user_reg4_agus = `6282301267746@c.us`
+const user_reg4_yoyon = `6289624118236@c.us`
 
 
 // ================================
@@ -64,13 +68,14 @@ wa.create({
     // useChrome: true, 
     // killProcessOnBrowserClose: true, 
     //throwErrorOnTosBlock: false, 
-    // chromiumArgs: [ '--no-sandbox', 
-    //                 '--disable-setuid-sandbox', 
-    //                 '--aggressive-cache-discard', 
-    //                 '--disable-cache', '--disable-application-cache', 
-    //                 '--disable-offline-load-stale-cache', 
-    //                 '--disk-cache-size=0' 
-    // ]
+     chromiumArgs: [ '--no-sandbox', 
+                    '--disable-setuid-sandbox', 
+                    '--aggressive-cache-discard', 
+                    '--disable-cache', '--disable-application-cache', 
+                    '--disable-offline-load-stale-cache', 
+                    '--disk-cache-size=0' ,
+                    '--disable-web-security'
+    ]
 }).then(client => start(client));
 
 async function start(client) { 
@@ -421,7 +426,7 @@ async function start(client) {
 
     /* 
     ============================================
-    ANCHOR Pengecekan Request PBHOLD Jagaan 5x SPD Ke Grup Cabang 
+    ANCHOR Pengecekan Request PBHOLD Jagaan 5x SPD Ke User AM Cabang
     ============================================
     */
     cron.schedule('*/24 * * * * *', async() => { 
@@ -436,11 +441,10 @@ async function start(client) {
                     for(var r_akun of akunCabang){ 
 
                         const data_pb_hold_cabang = await Controller.DataPbHoldCabang(r_akun.toko);
-                        console.log(data_pb_hold_cabang)
+                        
                         if(data_pb_hold_cabang != "None"){
                             //console.log(data_pb_hold_cabang)
                             //await client.sendTextWithMentions(r_akun.id_group, data_pb_hold_cabang.data);
-
                             if(data_pb_hold_cabang.id_chat !=""){
                                 try {
                                     await client.sendText(`${data_pb_hold_cabang.id_chat}@c.us`, data_pb_hold_cabang.data_for_am);
@@ -449,7 +453,6 @@ async function start(client) {
                                 } catch (error) {
                                     console.log("ERROR Info Hold ke AM: " + error)
                                 } 
-
                             }
                              
                             await conn_ho.query(`UPDATE m_pbro_hold_act set sent_wa = 1, jam_sent_wa = now() where date(created_at)=curdate() and toko='${r_akun.toko}' and taskid = '${r_akun.taskid}' and gudang = '${r_akun.dc}';`)
@@ -517,15 +520,15 @@ async function start(client) {
                 console.log("[START] Request PBHOLD: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {     
 
-                    const cabPbHold = `G004,G025,G030,G034,G097,G144,G146,G148,G149,G158,G177,G301,G305,GI28,GI33`
-                    const xplode_cabPbHold = cabPbHold.split(",")
+                    //const cabPbHold = `G004,G025,G030,G034,G097,G146,G148,G158,G177,G224,G301,G305,GI33,GI28,GI34,G144,G149,G154,G249`
+                    const xplode_cabPbHold = await Controller.ServerPbroReg4()
                     for(var r_hold of xplode_cabPbHold){
-                        const data_pb_hold = await Controller.DataPbHold(r_hold);
+                        const data_pb_hold = await Controller.DataPbHold(r_hold.kdcab);
                         if(data_pb_hold != "None"){
                             
                             await client.sendText(group_testbot, data_pb_hold);  
 
-                            console.log("Request PBHOLD - Ada :: "+ r_hold + " Jam" +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                            console.log("Request PBHOLD - Ada :: "+ r_hold.kdcab + " Jam" +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         } 
                     }
                     
@@ -543,24 +546,24 @@ async function start(client) {
 
     /* 
     ============================================
-        Pengecekan PBHOLD Jagaan 5x SPD OLEH EDP
+    Pengecekan PBHOLD Jagaan 5x SPD OLEH EDP Krn ST Tidak Wajar
     ============================================
     */
     cron.schedule('*/4 * * * *', async() => { 
         //( async() => {    
           if (taskPBHOLDEDP) { 
                 taskPBHOLDEDP = false    
-                console.log("[START] Request PBHOLD EDP: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                console.log("[START] Request PBHOLD EDP - ST Tidak Wajar: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {          
-                        const cabPbHoldEDP = `G004,G025,G030,G034,G097,G144,G146,G148,G149,G158,G177,G301,G305,GI28,GI33`
-                        const xplode_cabPbHoldEDP = cabPbHoldEDP.split(",")
+                        //const cabPbHoldEDP = `G004,G025,G030,G034,G097,G146,G148,G158,G177,G224,G301,G305,GI33,GI28,GI34,G144,G149,G154,G249`
+                        const xplode_cabPbHoldEDP = await Controller.ServerPbroReg4()
                         for(var r_holdedp of xplode_cabPbHoldEDP){
-                            const data_pb_holdedp = await Controller.DataPbHoldEDP(r_holdedp);
+                            const data_pb_holdedp = await Controller.DataPbHoldEDP(r_holdedp.kdcab);
                             if(data_pb_holdedp != "None"){
                                 
                                 await client.sendText(group_testbot, data_pb_holdedp);   
 
-                                console.log("Request PBHOLD EDP- Ada :: " + r_holdedp + " - " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                                console.log("Request PBHOLD EDP- Ada :: " + r_holdedp.kdcab + " - " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                             }
                         }
                     
@@ -739,64 +742,95 @@ async function start(client) {
     /* =================================================*/
     //          Report Data Harian Tampung - All Cabang
     /* =================================================*/
-    cron.schedule('58 3,4,5,6,7,8,9,10,11 * * *', async() => { 
+    //cron.schedule('58 3,4,5,6,7,8,9,10,11 * * *', async() => { 
         //( async() => {    
-          if (taskHarianTampungAll) { 
-            taskHarianTampungAll = false    
-                console.log("[START] Report Harian Tampung All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                try {         
-                    const jam = dayjs().format("HH")
-                    if(jam < 11 ){ 
+    //       if (taskHarianTampungAll) { 
+    //         taskHarianTampungAll = false    
+    //             console.log("[START] Report Harian Tampung All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //             try {         
+    //                 const jam = dayjs().format("HH")
+    //                 if(jam < 11 ){ 
                         
-                        var data_Hr_Tampung = await Controller.HarianTampung_new_allcabang();
-                        if(data_Hr_Tampung != "None"){
+    //                     var data_Hr_Tampung = await Controller.HarianTampung_new_allcabang();
+    //                     if(data_Hr_Tampung != "None"){
                                 
-                            await client.sendText(group_iris, data_Hr_Tampung); 
+    //                         await client.sendText(group_iris, data_Hr_Tampung); 
                             
-                            console.log("Report Harian Tampung All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
-                        }else{
-                            console.log("Report Harian Tampung All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
-                        }  
-                    }
+    //                         console.log("Report Harian Tampung All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+    //                     }else{
+    //                         console.log("Report Harian Tampung All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+    //                     }  
+    //                 }
                          
-                    console.log("[END] Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskHarianTampungAll = true
-            } catch (err) {
-                    console.log("[END] ERROR !!! Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskHarianTampungAll = true
-                    console.log('Error Kirim Harian All::' + err);
-            }
-          } 
-    });
+    //                 console.log("[END] Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskHarianTampungAll = true
+    //         } catch (err) {
+    //                 console.log("[END] ERROR !!! Report Harian Tampung All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskHarianTampungAll = true
+    //                 console.log('Error Kirim Harian All::' + err);
+    //         }
+    //       } 
+    // });
  
     /* =================================================*/
     //          Report Data Harian IRIS - All Cabang
     /* =================================================*/
+    //cron.schedule('55 3,4,5,6,7,8,9,10 * * *', async() => { 
+        //( async() => {    
+    //       if (taskHarianIrisAll) { 
+    //         taskHarianIrisAll = false    
+    //             console.log("[START] Report Harian Iris All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //             try {         
+    //                 const jam = dayjs().format("HH")
+    //                 if(jam < 11 ){ 
+                        
+    //                     var data_Hr_iris = await Controller.HarianIrisAll();
+    //                     if(data_Hr_iris != "None"){
+                                
+    //                         await client.sendText(group_iris, data_Hr_iris); 
+                            
+    //                         console.log("Report Harian Iris All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+    //                     }else{
+    //                         console.log("Report Harian Iris All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+    //                     }    
+    //                 }
+                         
+    //                 console.log("[END] Report Harian Iris All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskHarianIrisAll = true
+    //         } catch (err) {
+    //                 console.log("[END] ERROR !!! Report Harian Iris All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskHarianIrisAll = true
+    //                 console.log(err);
+    //         }
+    //       } 
+    // });
+
     cron.schedule('55 3,4,5,6,7,8,9,10 * * *', async() => { 
         //( async() => {    
-          if (taskHarianIrisAll) { 
-            taskHarianIrisAll = false    
-                console.log("[START] Report Harian Iris All Cabang: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+          if (taskHarianIrisAllImage) { 
+            taskHarianIrisAllImage = false    
+                console.log("[START] Report Harian Iris All Cabang Image: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {         
                     const jam = dayjs().format("HH")
                     if(jam < 11 ){ 
                         
-                        var data_Hr_iris = await Controller.HarianIrisAll();
+                        var data_Hr_iris = await Controller.HarianIrisAllImage();
                         if(data_Hr_iris != "None"){
                                 
-                            await client.sendText(group_iris, data_Hr_iris); 
+                            //await client.sendText(group_iris, data_Hr_iris); 
+                            await client.sendImage(group_iris, "./images/AbsFileHRServerIris.png", "AbsFileHRServerIris.png", `Absensi File Harian - Server Iris\n\n${data_Hr_iris.message}`)
                             
-                            console.log("Report Harian Iris All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                            console.log("Report Harian Iris All Cabang Image:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         }else{
-                            console.log("Report Harian Iris All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                            console.log("Report Harian Iris All Cabang Image:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         }    
                     }
                          
-                    console.log("[END] Report Harian Iris All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskHarianIrisAll = true
+                    console.log("[END] Report Harian Iris All Cabang Image:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianIrisAllImage = true
             } catch (err) {
-                    console.log("[END] ERROR !!! Report Harian Iris All Cabang:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskHarianIrisAll = true
+                    console.log("[END] ERROR !!! Report Harian Iris All Cabang Image:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianIrisAllImage = true
                     console.log(err);
             }
           } 
@@ -830,18 +864,22 @@ async function start(client) {
                             await client.sendFile(user_reg4_gama, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
                             await client.sendFile(user_reg4_panca, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
                             await client.sendFile(user_reg4_imam, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
-                            await client.sendFile(user_reg4_fariz, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_agus, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
                             await client.sendFile(user_reg4_rianto, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
                             await client.sendFile(user_reg4_putra, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_yoyon, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
+                            await client.sendFile(user_reg4_richy, `./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`, `File WT ${r.kdtk}`)
                         } 
                     }
                     await client.sendText(user_reg4_donny, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
                     await client.sendText(user_reg4_gama, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
                     await client.sendText(user_reg4_panca, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
                     await client.sendText(user_reg4_imam, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
-                    await client.sendText(user_reg4_fariz, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_agus, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
                     await client.sendText(user_reg4_rianto, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
                     await client.sendText(user_reg4_putra, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_yoyon, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
+                    await client.sendText(user_reg4_richy, `📚 *Report Export WT*\n *Cabang G236-Sorong dan G237- Kupang*\n _Tanggal ${today}_\n\n${pesan.join('\n')}`);
                         
                     taskExportWT = true
 
@@ -851,6 +889,40 @@ async function start(client) {
                         console.log(err);
                 }
           } 
+    });
+
+
+    /* =================================================*/
+    //          Report Data Harian Tampung - All Cabang IMAGE
+    /* =================================================*/
+    cron.schedule('58 3,4,5,6,7,8,9,10,11 * * *', async() => { 
+    //( async() => {    
+        if (taskHarianTampungAllImage) { 
+            taskHarianTampungAllImage = false    
+                console.log("[START] Report Harian Tampung All Cabang - Images: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {         
+                    const jam = dayjs().format("HH")
+                    if(jam < 11 ){ 
+                        
+                        var data_Hr_Tampung = await Controller.HarianTampung_new_allcabangImage();
+                        if(data_Hr_Tampung.status != "NOK"){
+                            
+                            await client.sendImage(group_iris, "./images/AbsFileHRServerTampung.png", "AbsFileHRServerTampung.png", "Absensi File Harian - Server Tampung")
+                            
+                            console.log("Report Harian Tampung All Cabang:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }else{
+                            console.log("Report Harian Tampung All Cabang:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }  
+                    }
+                         
+                    console.log("[END] Report Harian Tampung All Cabang - Images:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianTampungAllImage = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! Report Harian Tampung All Cabang - Images:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskHarianTampungAllImage = true
+                    console.log('Error Kirim Harian All::' + err);
+            }
+        } 
     });
 
     /* =================================================*/

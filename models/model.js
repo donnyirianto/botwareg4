@@ -1,6 +1,17 @@
 const conn_ho = require('../services/dbho');
 const conn_any = require('../services/anydb');
 
+const ServerPbroReg4 = async () => { 
+    try { 
+       
+        const [data] = await conn_ho.query(`select kdcab from m_server_iris msi where jenis='PBRO' and reg ='reg4'`);
+        return data;
+
+    } catch (e) {
+        return "Gagal"
+    }
+}
+
 const DataRo30Menit = async (kdcab) => {
     
     try { 
@@ -162,8 +173,7 @@ const AkunCabang = async () => {
         left join m_wa_group b on a.gudang =b.kdcab
         where date(a.created_at)=curdate()
         and a.recid = 1
-        and a.sent_wa = 0
-        and b.id_group is not null`);
+        and a.sent_wa = 0`);
         return data;
 
     } catch (e) {
@@ -403,6 +413,7 @@ const getipiriscab = async (kdcab) => {
         const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where kdcab = '${kdcab}'  and jenis='IRIS'`);
         return data
     } catch (e) {
+        
         return "Gagal"
     }
 }
@@ -488,7 +499,7 @@ select a.kdcab,a.toko as kdtk,nama,nama_spv,nama_mgr,tglbuka,
         ) c on a.toko = c.kdtk 
 ) a ;  ` 
         const rows = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, queryx)
-        
+        console.log( `${ipnya.kdcab} - ${ipnya.namacabang} :: Selesai`)
         if(rows ==="error")
             return {
                 status : "NOK",
@@ -1118,5 +1129,5 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh
+    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh,ServerPbroReg4
 }

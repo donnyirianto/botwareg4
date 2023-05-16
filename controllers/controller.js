@@ -4,6 +4,7 @@ const zconn = require('../services/anydb');
 const Iptoko = require('../helpers/iptoko');
 const { Parser } = require('json2csv');
 const fs = require('fs');
+const { createCanvas } = require('canvas');
 var dayjs = require("dayjs");
 
 function numberWithCommas(x) {
@@ -11,6 +12,16 @@ function numberWithCommas(x) {
 }
 
 // ========================== ANCHOR START ACTION PBRO =========================================
+
+const ServerPbroReg4 = async () => {
+    try {
+        const data = await Models.ServerPbroReg4()
+        return data
+    } catch (error) { 
+        return "Error"
+    }
+}
+
 const TeruskanPB = async (toko) => { 
     try {
       
@@ -112,7 +123,7 @@ const DataPbHold = async (kdcab) => {
         })
 
         if(tampil_data.toString().length > 10){
-            const xheader = `*Bapak EDPM mohon dibantu untuk koordinasi dengan OPR atas PBHOLD Berikut* \n`
+            const xheader = `*Bapak EDP mohon dibantu untuk koordinasi dengan OPR atas PBHOLD Berikut* \n`
             const header = `📈 *Request PBHOLD Jagaan 5x SPD* \n\n`
             const header2 = `*No | Kdcab | Toko | PB-FT | AvgSales | ST | Avg Qty 0 | Qty 0 Saat ini* \n`            
             const respons = `${xheader}${header}${header2}  ${tampil_data.join(" \n")}  \n\n_Last Update: ${dayjs().format("YYYY-MM-DD HH:mm:ss")}_`
@@ -603,6 +614,230 @@ const HarianIrisAll = async () => {
         return "None"
     }
 }
+
+const HarianIrisAllImage = async () => {
+    try {
+        var date =  new Date()
+        var kemarin = date.setDate(date.getDate()-1);
+        var yesterday = dayjs(kemarin).format("YYYY-MM-DD")
+        var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm")
+      
+        var tampil_data = [] 
+        var toko_aktif = 0;
+        var proses = 0;
+        var blmproses = 0;
+        var proses_sales = 0;
+        var blmproses_sales = 0; 
+
+        var ipnya = await Models.getipiriscab_allcabang()
+        
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianIris(r, yesterday)
+        })
+
+        const result = await Promise.allSettled(promise); 
+
+        let datarekap = [];
+        let datarekap_nok = [];
+       
+        const hasil = result.map((r)=> {return r.value})
+        
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+        hasil.filter((r) => r.status == "NOK").forEach(r => {
+            datarekap_nok.push(r.datarekap)
+        });
+
+        datarekap.map( async (xd)=>{
+            tampil_data.push(`${xd.kdcab}-${xd.namacabang} | ${xd.total_toko_aktif} | ${xd.proses} | ${xd.belum_proses} | ${xd.proses_sales} | ${xd.belum_proses_sales}`)
+            toko_aktif += parseInt(xd.total_toko_aktif)
+            proses += parseInt(xd.proses)
+            blmproses += parseInt(xd.belum_proses)
+            proses_sales += parseInt(xd.proses_sales)
+            blmproses_sales += parseInt(xd.belum_proses_sales)
+        }) 
+ 
+        let irisnok= ""
+        if(datarekap_nok.length > 0){
+            irisnok = `\n\n*WARNING - IRIS CABANG DOWN!!*\n\n${datarekap_nok.join("\n")}`
+        } 
+        
+        
+        const resp = {
+            status: "OK",
+            title: `📚 Server IRIS`,
+            subtitle: `Absensi Data Harian Tgl ${yesterday}\n\n`,
+            last_upd: `Last Update : ${yesterday2}`,
+            message : irisnok,
+            data: datarekap,
+            total: {
+                toko_aktif: toko_aktif,
+                proses: proses,
+                blmproses: blmproses,
+                proses_sales: proses_sales,
+                blmproses_sales: blmproses_sales,
+            }
+        }
+
+
+        const canvasWidth = 1000;
+        const canvasHeight = 33.5 * resp.data.length;
+        const padding = 10;
+        const cellWidth = 165;
+        const cellHeight = 30;
+        const headerColor = '#d0abf5';
+        const headerTextColor = '#333';
+        const cellColor = '#f9f9f9';
+        const cellTextColor = '#333';
+        const fontSize = 12;
+        const lineWidth = 1;
+        const titleFontSize = 20;
+        const subtitleFontSize = 16;
+        const tableFontSize = 12;
+
+        // Create a canvas
+        const canvas = createCanvas(canvasWidth, canvasHeight);
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas background to white
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Draw title
+        ctx.font = `bold ${titleFontSize}px Arial`;
+        ctx.fillStyle = '#000';
+        ctx.fillText(resp.title, padding, padding + titleFontSize);
+
+        //Draw subtitle
+        ctx.font = `bold ${subtitleFontSize}px Arial`;
+        ctx.fillStyle = '#555';
+        ctx.fillText(resp.subtitle, padding, padding + titleFontSize + subtitleFontSize + 10);
+
+        //Draw subtitle
+        ctx.font = `bold 14px Arial`;
+        ctx.fillStyle = 'rgb(2, 150, 167)';
+        ctx.fillText(resp.last_upd, padding, padding + titleFontSize + subtitleFontSize + 10 + 20);
+
+        const tableX = padding;
+        const tableY = padding + titleFontSize + subtitleFontSize + 55;
+        const tableWidth = cellWidth * 6;
+        //const tableHeight = (jsonData.length + 1) * cellHeight;
+
+        ctx.font = `bold ${tableFontSize}px Arial`;
+        ctx.fillStyle = headerColor;
+        ctx.fillRect(tableX, tableY, tableWidth, cellHeight);
+        ctx.fillStyle = headerTextColor;
+        ctx.fillText('CABANG', tableX + 5 + 30, tableY + tableFontSize + 5);
+        ctx.fillText('TOTAL TOKO', tableX + cellWidth  + 25, tableY + tableFontSize + 5);
+        ctx.fillText('PROSES', tableX + cellWidth * 2 + 40, tableY + tableFontSize + 5);
+        ctx.fillText('BLM PROSES', tableX + cellWidth * 3 + 32, tableY + tableFontSize + 5);
+        ctx.fillText('PROSES SALES', tableX + cellWidth * 4 + 30, tableY + tableFontSize + 5);
+        ctx.fillText('BLM PROSES SALES', tableX + cellWidth * 5 + 18, tableY + tableFontSize + 5);
+
+        //Gambar Rows data
+        ctx.font = `${fontSize}px Calibri`;
+        resp.data.forEach((data, index) => {
+
+            const rowX = tableX;
+            const rowY = tableY + (index + 1) * cellHeight;
+
+            // Draw row borders
+            ctx.strokeStyle = '#949191';
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(rowX, rowY);
+            ctx.lineTo(rowX + cellWidth * 6, rowY);
+            ctx.stroke();
+
+            ctx.fillStyle = cellColor;
+            ctx.fillRect(rowX, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(`${data.kdcab} - ${data.namacabang}`, rowX + 5, rowY + fontSize + 5);
+
+            ctx.fillStyle = cellColor;
+            ctx.fillRect(rowX + cellWidth, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.total_toko_aktif, rowX + cellWidth + 55, rowY + fontSize + 5);
+
+            ctx.fillStyle = data.proses != data.total_toko_aktif ? "#dbc884" : "#d7f5d5";
+            ctx.fillRect(rowX + cellWidth * 2, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.proses, rowX + cellWidth * 2 + 55, rowY + fontSize + 5);
+
+            ctx.fillStyle = data.belum_proses > 0 ? "#f5a6b4" : cellColor;
+            ctx.fillRect(rowX + cellWidth * 3, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.belum_proses, rowX + cellWidth * 3 + 65, rowY + fontSize + 5);
+
+            ctx.fillStyle = data.proses_sales != data.total_toko_aktif ? "#dbc884" : "#d7f5d5";
+            ctx.fillRect(rowX + cellWidth * 4, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.proses_sales, rowX + cellWidth * 4 + 65, rowY + fontSize + 5);
+
+            ctx.fillStyle = data.belum_proses_sales > 0 ? "#f5a6b4" : cellColor;
+            ctx.fillRect(rowX + cellWidth * 5, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.belum_proses_sales, rowX + cellWidth * 5 + 65, rowY + fontSize + 5);
+
+        })
+
+        const rowX2 = tableX;
+        const rowY2 = tableY + (resp.data.length + 1) * cellHeight;
+
+        ctx.strokeStyle = '#949191';
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(rowX2, rowY2);
+        ctx.lineTo(rowX2 + cellWidth * 4, rowY2);
+        ctx.stroke();
+
+        ctx.font = `bold 14px Arial`;
+        ctx.fillStyle = cellColor;
+        ctx.fillRect(rowX2, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(`TOTAL`, rowX2 + 85, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = cellColor;
+        ctx.fillRect(rowX2 + cellWidth, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(resp.total.toko_aktif), rowX2 + cellWidth + 45, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = "#d7f5d5";
+        ctx.fillRect(rowX2 + cellWidth * 2, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(resp.total.proses), rowX2 + cellWidth * 2 + 45, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = resp.total.blmproses != resp.total.toko_aktif ? "#f5a6b4" : "#d7f5d5";
+        ctx.fillRect(rowX2 + cellWidth * 3, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(resp.total.blmproses), rowX2 + cellWidth * 3 + 55, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = "#d7f5d5";
+        ctx.fillRect(rowX2 + cellWidth * 4, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(resp.total.proses_sales), rowX2 + cellWidth * 4 + 55, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = resp.total.blmproses_sales != resp.total.toko_aktif ? "#f5a6b4" : "#d7f5d5";
+        ctx.fillRect(rowX2 + cellWidth * 5, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(resp.total.blmproses_sales), rowX2 + cellWidth * 5 + 55, rowY2 + fontSize + 5);
+
+        // Convert the canvas to a buffer
+        const buffer = canvas.toBuffer('image/png');
+
+        // Save the buffer as an image file
+        fs.writeFileSync('./images/AbsFileHRServerIris.png', buffer);
+
+        return resp
+
+
+    } catch (e) {  
+        
+        return "None"
+    }
+}
+
 const HarianIrisCabang = async (kdcab) => {
     try {
         var date =  new Date()
@@ -762,8 +997,186 @@ const HarianTampungCabang = async (kdcab) => {
         const respons = `${header}${header2}${tampil_data.join("\n")}\n\n_Last Update: ${yesterday2}_` 
         return respons
     } catch (e) {
-        
+        console.log(e)
         return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
+    }
+ 
+}
+
+const HarianTampung_new_allcabangImage = async () => {
+    
+    try {
+        
+        var yesterday = dayjs().add(-1, 'day').format("YYYY-MM-DD") 
+        var yesterday2 = dayjs().format("YYYY-MM-DD HH:mm:ss") 
+        
+        var ipnya = await Models.getipiriscab_allcabang()
+
+        const promise = ipnya.map((r)=>{ 
+            return Models.HarianTampung_new(r, yesterday)
+        })
+        const result = await Promise.allSettled(promise); 
+        
+        let datarekap = [];
+       
+        const hasil = result.map((r)=> {return r.value})
+        
+        hasil.filter((r) => r.status == "OK").forEach(r => {
+            r.datarekap.map( r => datarekap.push(r) )
+        });
+
+        const resp = {
+            status: "OK",
+            title: `📚 Server Tampung`,
+            subtitle: `Absensi Data Harian ${yesterday}\n\n`,
+            last_upd: `Last Update : ${yesterday2}\n\n`,
+            data: datarekap
+        }
+
+        const canvasWidth = 640;
+        const canvasHeight = 33.5 * resp.data.length;
+        const padding = 10;
+        const cellWidth = 165;
+        const cellHeight = 30;
+        const headerColor = '#d0abf5';
+        const headerTextColor = '#333';
+        const cellColor = '#f9f9f9';
+        const cellTextColor = '#333';
+        const fontSize = 12;
+        const lineWidth = 1;
+        const titleFontSize = 20;
+        const subtitleFontSize = 16;
+        const tableFontSize = 12;
+        
+        // Create a canvas
+        const canvas = createCanvas(canvasWidth, canvasHeight);
+        const ctx = canvas.getContext('2d'); 
+
+        // Set canvas background to white
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+        // Draw title
+        ctx.font = `bold ${titleFontSize}px Arial`;
+        ctx.fillStyle = '#000';
+        ctx.fillText(resp.title, padding, padding + titleFontSize);
+
+        //Draw subtitle
+        ctx.font = `bold ${subtitleFontSize}px Arial`;
+        ctx.fillStyle = '#555';
+        ctx.fillText(resp.subtitle, padding, padding + titleFontSize + subtitleFontSize + 10);
+
+        //Draw subtitle
+        ctx.font = `bold 14px Arial`;
+        ctx.fillStyle = 'rgb(2, 150, 167)';
+        ctx.fillText(resp.last_upd, padding, padding + titleFontSize + subtitleFontSize + 10 + 20);
+
+        
+        const tableX = padding;
+        const tableY = padding + titleFontSize + subtitleFontSize + 55;
+        const tableWidth = cellWidth * 4;
+        //const tableHeight = (jsonData.length + 1) * cellHeight;
+
+        ctx.font = `bold ${tableFontSize}px Arial`;
+        ctx.fillStyle = headerColor;
+        ctx.fillRect(tableX, tableY, tableWidth, cellHeight);
+        ctx.fillStyle = headerTextColor;
+        ctx.fillText('CABANG', tableX + 5 + 30, tableY + tableFontSize + 5);
+        ctx.fillText('TOTAL TOKO', tableX + cellWidth  + 25, tableY + tableFontSize + 5);
+        ctx.fillText('HR TERSEDIA', tableX + cellWidth * 2 + 25, tableY + tableFontSize + 5);    
+        ctx.fillText('HR BLM TERSEDIA', tableX + cellWidth * 3 + 18, tableY + tableFontSize + 5);
+    
+        //Gambar Rows data
+        ctx.font = `${fontSize}px Calibri`;
+        let total_toko = 0;
+        let hr_tersedia = 0;
+        let hr_blm_tersedia = 0;
+        resp.data.forEach((data, index) => { 
+
+            const rowX = tableX;
+            const rowY = tableY + (index + 1) * cellHeight;
+        
+            // Draw row borders
+            ctx.strokeStyle = '#949191';
+            ctx.lineWidth = lineWidth;
+            ctx.beginPath();
+            ctx.moveTo(rowX, rowY);
+            ctx.lineTo(rowX + cellWidth * 4, rowY);
+            ctx.stroke();
+        
+            ctx.fillStyle = cellColor;
+            ctx.fillRect(rowX, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(`${data.kdcab} - ${data.nama}`, rowX + 5, rowY + fontSize + 5);
+
+            ctx.fillStyle = cellColor;
+            ctx.fillRect(rowX + cellWidth, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.total_toko, rowX + cellWidth + 55, rowY + fontSize + 5);
+
+            ctx.fillStyle = data.sudah != data.total_toko ? "#dbc884" : "#aff7ab";
+            ctx.fillRect(rowX + cellWidth * 2, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.sudah, rowX + cellWidth * 2 + 55, rowY + fontSize + 5);        
+            
+            ctx.fillStyle = data.belum > 0 ? "#fc8b9e" : cellColor;
+            ctx.fillRect(rowX + cellWidth * 3, rowY, cellWidth, cellHeight);
+            ctx.fillStyle = cellTextColor;
+            ctx.fillText(data.belum, rowX + cellWidth * 3 + 65, rowY + fontSize + 5);
+            
+            total_toko += parseInt(data.total_toko);
+            hr_tersedia += parseInt(data.sudah);
+            hr_blm_tersedia += parseInt(data.belum);
+        
+        })
+
+        const rowX2 = tableX;
+        const rowY2 = tableY + (resp.data.length + 1) * cellHeight;  
+
+        ctx.strokeStyle = '#949191';
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.moveTo(rowX2, rowY2);
+        ctx.lineTo(rowX2 + cellWidth * 4, rowY2);
+        ctx.stroke();
+
+        ctx.font = `bold 14px Arial`;
+        ctx.fillStyle = cellColor;
+        ctx.fillRect(rowX2, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(`TOTAL`, rowX2 + 85, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = cellColor;
+        ctx.fillRect(rowX2 + cellWidth, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(total_toko), rowX2 + cellWidth + 45, rowY2 + fontSize + 5);
+
+        ctx.fillStyle = "#aff7ab";
+        ctx.fillRect(rowX2 + cellWidth * 2, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(hr_tersedia), rowX2 + cellWidth * 2 + 45, rowY2 + fontSize + 5);        
+        
+        ctx.fillStyle = cellColor;
+        ctx.fillRect(rowX2 + cellWidth * 3, rowY2, cellWidth, cellHeight);
+        ctx.fillStyle = cellTextColor;
+        ctx.fillText(new Intl.NumberFormat().format(hr_blm_tersedia), rowX2 + cellWidth * 3 + 55, rowY2 + fontSize + 5);
+
+        // Convert the canvas to a buffer
+        const buffer = canvas.toBuffer('image/png');
+
+        // Save the buffer as an image file
+        fs.writeFileSync('./images/AbsFileHRServerTampung.png', buffer);
+                
+        return resp
+
+    } catch (e) {
+        console.log(e)
+        return {
+            status: "NOK",
+            message: "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!"
+            
+        }
+        
     }
  
 }
@@ -956,8 +1369,7 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
         return `_${kdcab}-${toko}-${namatoko} = Toko Tidak Dapat Diakses_`
     }
 }
-
-
+ 
 const DownloadSB = async (today,kdcab,toko,namatoko,namafile) => {
     try {  
         
@@ -1068,7 +1480,7 @@ const absenPbbh = async () => {
 }
 module.exports = {
     DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,
-    HarianIris,HarianIrisAll, HarianIrisCabang, 
+    HarianIris,HarianIrisAll, HarianIrisCabang,HarianIrisAllImage, 
     HarianTampung_new,HarianTampung_new_allcabang,HarianTampungCabang, 
     HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
     DataPbHoldEDP,
@@ -1077,6 +1489,7 @@ module.exports = {
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
-    DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB,absenPbbh
+    DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB,absenPbbh,HarianTampung_new_allcabangImage,
+    ServerPbroReg4
   }
  
