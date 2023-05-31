@@ -1210,7 +1210,7 @@ const HarianTokoLibur = async () => {
             masuk += parseInt(r.sudah); 
             belum += parseInt(r.belum); 
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur 2023-03-22*\n\n`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur ${today}*\n\n`
         const header2 = `*Kdcab | Toko Aktif | Sudah Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${belum} | ${Number(((belum)/toko_aktif * 100).toFixed(2))}%*`
 
@@ -1268,7 +1268,7 @@ const HarianTokoLiburCabang = async (kdcab) => {
         data.map( async (r)=>{
             tampil_data.push(`${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}`)
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur 2023-03-22*\nCabang: ${kdcab.toUpperCase()}\n\n`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur ${today}*\nCabang: ${kdcab.toUpperCase()}\n\n`
         const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
         const header2 = `_Detail Toko Data Harian Belum Terkirim ke Server Tampung_\n\n*AM | AS | Nama Toko*\n`
 
