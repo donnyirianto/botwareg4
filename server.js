@@ -398,7 +398,7 @@ async function start(client) {
                         //var pesan_oto = `Bapak ${roto.am} ${id_chat}\n📈 (${roto.dc}) ${roto.toko}-${roto.namatoko}\nTanggal PB: ${roto.tanggal}\nPB-FT : ${roto.nilaipb}\nAVG Sales :  ${roto.avgsales}\nAkan kami *Teruskan* karena informasi kami telah lebih dari 15 menit belum mendapat jawaban.`
                         var pesan_oto_for_am = `Bapak ${roto.am}\n📈 (${roto.dc}) ${roto.toko}-${roto.namatoko}\nTanggal PB: ${roto.tanggal}\nPB-FT : ${roto.nilaipb}\nAVG Sales :  ${roto.avgsales}\nAkan kami *Teruskan* karena informasi kami telah lebih dari 15 menit belum mendapat jawaban.`
                         var r_data_oto  = await Controller.updateDataOto(roto.dc,roto.toko,roto.taskid)
-                        if(r_data_oto === "Sukses" && roto.id_group != ""){
+                        if(r_data_oto === "Sukses" ){//&& roto.id_group != ""
                             
                             if( roto.id_chat !=""){
                                 try {
@@ -653,28 +653,28 @@ async function start(client) {
     Pengecekan Data Harian Lebih dari jam 09
     ============================================
     */
-    cron.schedule('00 09 * * *', async() => { 
-        //( async() => {    
-          if (taskDataHarianjam9) { 
-                taskDataHarianjam9 = false    
-                console.log("[START] Data Harian Lebih dari jam 09: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                try {         
+    // cron.schedule('00 09 * * *', async() => { 
+    //     //( async() => {    
+    //       if (taskDataHarianjam9) { 
+    //             taskDataHarianjam9 = false    
+    //             console.log("[START] Data Harian Lebih dari jam 09: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //             try {         
                     
-                    const harian_lebih_9 = await Controller.DataHarianLebih9();
-                    if(harian_lebih_9 != "None"){
+    //                 const harian_lebih_9 = await Controller.DataHarianLebih9();
+    //                 if(harian_lebih_9 != "None"){
                         
-                        console.log("Data Harian Lebih dari jam 09 - Ada :: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
-                    }
+    //                     console.log("Data Harian Lebih dari jam 09 - Ada :: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+    //                 }
                      
-                    console.log("[END] Data Harian Lebih dari jam 09 :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskDataHarianjam9 = true
-            } catch (err) {
-                    console.log("[END] Data Harian Lebih dari jam 09 :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskDataHarianjam9 = true
-                    console.log(err);
-            }
-          } 
-    });
+    //                 console.log("[END] Data Harian Lebih dari jam 09 :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskDataHarianjam9 = true
+    //         } catch (err) {
+    //                 console.log("[END] Data Harian Lebih dari jam 09 :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskDataHarianjam9 = true
+    //                 console.log(err);
+    //         }
+    //       } 
+    // });
 
     /* =================================================*/
     //          Report Data Harian Tampung

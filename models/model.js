@@ -499,7 +499,7 @@ select a.kdcab,a.toko as kdtk,nama,nama_spv,nama_mgr,tglbuka,
         ) c on a.toko = c.kdtk 
 ) a ;  ` 
         const rows = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, queryx)
-        console.log( `${ipnya.kdcab} - ${ipnya.namacabang} :: Selesai`)
+        
         if(rows ==="error")
             return {
                 status : "NOK",
@@ -632,7 +632,8 @@ const HarianTampung_new = async (ipnya,tanggal) => {
                             from m_abs_harian_file 
                             where tanggal_harian='${tanggal}'
                         ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
-                        WHERE a.Kodetoko in(${cabang.toString()})
+                        WHERE a.Kodetoko in(${cabang.toString()}) 
+                        and a.KodeGudang='${ipnya.kdcab}'
                     ) a 
                     left join m_branch b on a.kdcab =b.branch_code 
                     group by kdcab
@@ -654,6 +655,7 @@ const HarianTampung_new = async (ipnya,tanggal) => {
                             where tanggal_harian='${tanggal}'
                         ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
                         WHERE a.Kodetoko in(${cabang.toString()})
+                        and a.KodeGudang='${ipnya.kdcab}'
                     ) a 
                     left join m_branch b on a.kdcab =b.branch_code 
                     group by kdcab
@@ -724,6 +726,7 @@ const HarianTampungCabang_new = async (ipnya,tanggal) => {
                             where tanggal_harian='${tanggal}'
                         ) b on a.Kodetoko = b.kdtk AND a.kodegudang = b.kdcab
                         WHERE a.Kodetoko in(${cabang.toString()})
+                        and a.kodegudang='${ipnya.kdcab}'
                         having ket = 'Belum'
                 `          
             }else{
