@@ -273,8 +273,8 @@ const DataHarianKoneksi = async () => {
         var query_ho_belum="";
         const cekTokoExt = await conn_local.query(`Select count(*) as total from posrealtime_base.toko_extended`) 
         
-        if(cekTokoExt.total > 0){
-
+        if(cekTokoExt[0].total > 0){
+            
             query_ho_belum = ` 
             SELECT a.KodeGudang as kdcab, 
                 a.Kodetoko as kdtk, a.NamaToko as nama
@@ -285,7 +285,8 @@ const DataHarianKoneksi = async () => {
                 from m_abs_harian_file 
                 where tanggal_harian='${tanggal}'
             ) b on a.Kodetoko = b.kdtk 
-            WHERE a.Kodetoko in(${acuan})                     
+            WHERE a.Kodetoko in(${acuan})
+            and a.kodegudang not in('G097')                     
             and b.nama_file is null
             order by a.kodegudang
         `
@@ -302,7 +303,8 @@ const DataHarianKoneksi = async () => {
                 from m_abs_harian_file 
                 where tanggal_harian='${tanggal}'
             ) b on a.Kodetoko = b.kdtk 
-            WHERE a.Kodetoko in(${acuan})                     
+            WHERE a.Kodetoko in(${acuan})    
+            AND a.kodegudang not in('G097')
             and b.nama_file is null
             order by a.kodegudang
         `
