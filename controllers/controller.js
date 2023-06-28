@@ -21,7 +21,6 @@ const ServerPbroReg4 = async () => {
         return "Error"
     }
 }
-
 const TeruskanPB = async (toko) => { 
     try {
       
@@ -34,7 +33,6 @@ const TeruskanPB = async (toko) => {
         return "None"
     }
 } 
-
 const HitungRekapHold = async () => { 
     try {
         
@@ -58,7 +56,6 @@ const HoldPB = async (toko) => {
         return "None"
     }
 } 
-
 const cekCabang = async (idgroup) => { 
     try {
         const cekcabang = await Models.cekCabang(idgroup)
@@ -69,7 +66,6 @@ const cekCabang = async (idgroup) => {
         return "None"
     }
 } 
-
 const updateDataOto = async (dc,toko,taskid) => { 
     try {
         
@@ -78,7 +74,7 @@ const updateDataOto = async (dc,toko,taskid) => {
         return "Sukses"
         
     } catch (e) {
-        
+        console.log(e)
         return "None"
     }
 } 
@@ -109,8 +105,6 @@ const DataRo30Menit = async (kdcab) => {
         return "None"
     }
 } 
-
-
 const DataPbHold = async (kdcab) => { 
     try {
         const data = await Models.DataPbHold(kdcab)
@@ -136,7 +130,6 @@ const DataPbHold = async (kdcab) => {
         return "None"
     }
 } 
-
 const DataPbHoldCabang = async (kdtk) => { 
     try {
         const data = await Models.DataPbHoldCabang(kdtk)
@@ -172,7 +165,6 @@ const DataPbHoldCabang = async (kdtk) => {
         return "None"
     }
 } 
-
 const DataPbHoldEDP = async (kdcab) => { 
     try {
         const data = await Models.DataPbHoldEDP(kdcab)
@@ -198,8 +190,6 @@ const DataPbHoldEDP = async (kdcab) => {
         return "None"
     }
 } 
-
-
 const DataGagalRoReg = async (kdcab) => { 
     try {
         const data = await Models.DataGagalRoReg(kdcab)
@@ -225,7 +215,6 @@ const DataGagalRoReg = async (kdcab) => {
         return "None"
     }
 } 
-
 const getBM = async (kdcab) => { 
     try {
       
@@ -282,7 +271,8 @@ const DataHarianKoneksi = async () => {
         }
         const acuan = data_all.toString().replace(/"/g, '')
         var query_ho_belum="";
-        const [cekTokoExt] = await conn_local.query({ sql: `Select count(*) as total from posrealtime_base.toko_extended` }) 
+        const cekTokoExt = await conn_local.query(`Select count(*) as total from posrealtime_base.toko_extended`) 
+        
         if(cekTokoExt.total > 0){
 
             query_ho_belum = ` 
@@ -318,8 +308,8 @@ const DataHarianKoneksi = async () => {
         `
         }
         
-        const [belum] = await conn_local.query({ sql: query_ho_belum })  
-     
+        const belum = await conn_local.query(query_ho_belum)  
+        
         var detailbelum = []
         if(belum.length > 0){
             const detail = belum.map( (r) =>{
@@ -350,6 +340,7 @@ const DataHarianKoneksi = async () => {
                 no++;
             }            
         })
+        
         //console.log(tampil_data.sort((a, b) => (a.kdcab > b.kdcab ? 1 : 1)).toString())
         if(tampil_data.toString().length > 10){
             const xheader = `*FYI: Bapak2 EDPM mohon bantuannya atas kendala koneksi toko berikut* \n`
@@ -360,10 +351,9 @@ const DataHarianKoneksi = async () => {
         }else{
             return "None"
         } 
-        
-        
+
     }catch(e){ 
-        
+        console.log(e)
         return "None"
     }
 }
@@ -428,7 +418,7 @@ const DataHarianLebih9 = async () => {
                     order by a.kodegudang
                 `
         
-        const [belum] = await conn_local.query({ sql: query_ho_belum })  
+        const [belum] = await conn_local.query(query_ho_belum)  
      
         var detailbelum = []
         if(belum.length > 0){

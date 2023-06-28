@@ -10,13 +10,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@open-wa/wa-automate": "^4.66.0",
-    "axios": "^0.27.2",
+    "@open-wa/wa-automate": "^4.66.3",
+    "axios": "^1.4.0",
     "canvas": "^2.11.2",
-    "dayjs": "^1.11.7",
-    "dotenv": "^16.0.3",
+    "dayjs": "^1.11.8",
+    "dotenv": "^16.1.4",
     "json2csv": "^5.0.7",
-    "mysql2": "^3.3.1",
+    "mysql2": "^3.3.3",
     "node-cron": "^3.0.2"
   }
 }

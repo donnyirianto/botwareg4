@@ -4,7 +4,7 @@ const conn_any = require('../services/anydb');
 const ServerPbroReg4 = async () => { 
     try { 
        
-        const [data] = await conn_ho.query(`select kdcab from m_server_iris msi where jenis='PBRO' and reg ='reg4'`);
+        const data = await conn_ho.query(`select kdcab from m_server_iris msi where jenis='PBRO' and reg ='reg4' and kdcab not in('G097','G099')`);
         return data;
 
     } catch (e) {
@@ -15,7 +15,7 @@ const ServerPbroReg4 = async () => {
 const DataRo30Menit = async (kdcab) => {
     
     try { 
-        const [data] = await conn_ho.query(`SELECT a.* FROM
+        const data = await conn_ho.query(`SELECT a.* FROM
         (
             select toko,dc,\`status\`,keterangan,
             TIMEDIFF(CURRENT_TIME(),addtime) difftime,
@@ -42,7 +42,7 @@ const DataPbHold = async (kdcab) => {
     
     try { 
         
-        const [data] = await conn_ho.query(`select
+        const data = await conn_ho.query(`select
         a.*,b.st,b.nilaipb,avgsales,
         round(avg_stock_0_persen,2) as avg_stock_0_persen,
         round(stock_0_persen,2) as stock_0_persen
@@ -66,13 +66,10 @@ const DataPbHold = async (kdcab) => {
     }
 } 
 
-const DataPbHoldCabang = async (toko) => {
-    await conn_ho.query(`SET sql_mode=' '`);
-    await conn_ho.query(`SET sql_mode=' '`);
-    await conn_ho.query(`SET sql_mode=' '`);
+const DataPbHoldCabang = async (toko) => { 
     try {         
 
-        const [data] = await conn_ho.query(`
+        const data = await conn_ho.query(`
         select a.gudang as dc, concat(a.toko,'-', trim(left(ifnull(c.namatoko,''),10))) as toko,left(a.am,15) as am,ifnull(id_chat,'') as id_chat,a.tanggal,a.nilaipb,a.avgsales,
         b.prdcd,b.singkat,b.qty,b.gross
         from
@@ -98,7 +95,7 @@ const DataPbHoldEDP = async (kdcab) => {
     
     try { 
         
-        const [data] = await conn_ho.query(`select
+        const data = await conn_ho.query(`select
         a.*,b.st,b.nilaipb,avgsales,
         round(avg_stock_0_persen,2) as avg_stock_0_persen,
         round(stock_0_persen,2) as stock_0_persen
@@ -126,7 +123,7 @@ const DataPbHoldEDP = async (kdcab) => {
 const DataGagalRoReg = async (kdcab) => {
     
     try { 
-        const [data] = await conn_ho.query(`
+        const data = await conn_ho.query(`
         SELECT a.* FROM
         (
             select toko,dc,\`status\`,keterangan,
@@ -153,9 +150,9 @@ const DataGagalRoReg = async (kdcab) => {
 const dataserver = async () => {
     try{
         //'G025','G030','G034','G097','G146','G148','G149','G158','G174','G301','G305') 
-        const [rows] = await conn_ho.query(`
+        const rows = await conn_ho.query(`
             select * from m_server_iris where jenis='IRIS'
-            and kdcab in('G004','G025','G030','G034','G097','G146','G148','G149','G158','G174','G177','G301','G305','G224','G232','G234')
+            and kdcab in('G004','G025','G030','G034','G244','G146','G148','G149','G158','G174','G177','G301','G305','G224','G232','G234')
             order by kdcab
         `)
         return rows
@@ -168,7 +165,7 @@ const dataserver = async () => {
 const AkunCabang = async () => { 
     try { 
        
-        const [data] = await conn_ho.query(`select gudang as dc, a.taskid, toko, id_group, nama_group from
+        const data = await conn_ho.query(`select gudang as dc, a.taskid, toko, id_group, nama_group from
         m_pbro_hold_act a
         left join m_wa_group b on a.gudang =b.kdcab
         where date(a.created_at)=curdate()
@@ -184,7 +181,7 @@ const AkunCabang = async () => {
 const updRecid2 = async () => { 
     
     try { 
-        const [upd] = await conn_ho.query({ sql : `select concat("'",toko,"'") as kdtk from m_pbro_hold_act where date(created_at)=curdate() and recid = 2 group by toko`, rowsAsArray: true})
+        const upd = await conn_ho.query({ sql : `select concat("'",toko,"'") as kdtk from m_pbro_hold_act where date(created_at)=curdate() and recid = 2 group by toko`, rowsAsArray: true})
         
         await conn_ho.query(`UPDATE m_pbro_hold_act SET sent_wa = 1, recid= 2 where date(created_at) = curdate() and recid != 2 and toko in(${upd.join(",")});`);
          
@@ -223,7 +220,7 @@ const HitungRekapHold = async () => {
         and (id_group is not null or id_group !='')
         order by dc,total desc;`
          
-        const [data] = await conn_ho.query(query_select)
+        const data = await conn_ho.query(query_select)
         
         
         return data
@@ -237,7 +234,7 @@ const HitungRekapHold = async () => {
 const AkunCabangOto = async () => { 
     try { 
     
-        const [data] = await conn_ho.query(`
+        const data = await conn_ho.query(`
         select gudang as dc,a.taskid,toko,c.namatoko,ifnull(id_chat,'') as id_chat,id_group,am,nama_group,a.tanggal,a.nilaipb,a.avgsales,TIME_TO_SEC(TIMEDIFF(now(),ifnull(jam_sent_wa,now())))/60 as waktu
         from
         m_pbro_hold_act a
@@ -246,10 +243,10 @@ const AkunCabangOto = async () => {
         left join (select nik,nama,id_chat from m_users where id_chat is not null and length(id_chat > 7) and id_chat !='undefined' and left(id_chat,2) = '62') d on left(c.amgr_name,10) = d.nik
         where date(a.created_at)=curdate()
         and a.recid = 1 and sent_wa = 1
-        and b.id_group is not null
         having waktu > 15
         order by waktu desc;`);
             //OR act rlike 'Teruskan PB'
+            //and b.id_group is not null
 
         return data
     } catch (e) {
@@ -260,11 +257,8 @@ const AkunCabangOto = async () => {
 
 const TeruskanPB = async (toko) => { 
     try { 
-        await conn_ho.query(`set sql_mode = ''`);
-        await conn_ho.query(`set sql_mode = ''`);
-        await conn_ho.query(`set sql_mode = ''`);
 
-        const [cekdata] = await conn_ho.query(`
+        const cekdata = await conn_ho.query(`
             select concat(a.toko,'-',trim(namatoko))as nama_toko,a.taskid,
                 ifnull(a.jam_konfirm_am,'') as jam_konfirm_am,ifnull(a.jam_konfirm_oto,'') as jam_konfirm_oto,
                 ifnull(pbro_status,'') as pbro_status,tanggal
@@ -274,9 +268,6 @@ const TeruskanPB = async (toko) => {
                 and date(created_at) = curdate()
                 order by taskid desc limit 1
             `);
-            console.log(cekdata)
-            console.log("=>>>>>>>", cekdata[0])
-            console.log("PBRO Status",cekdata[0].pbro_status)
 
         if(cekdata[0].pbro_status ===""){
             console.log("Sukses Teruskan " + toko)
@@ -311,13 +302,9 @@ const TeruskanPB = async (toko) => {
 }
 
 const HoldPB = async (toko) => { 
-    try { 
+    try {  
 
-        await conn_ho.query(`set sql_mode = ''`);
-        await conn_ho.query(`set sql_mode = ''`);
-        await conn_ho.query(`set sql_mode = ''`);
-
-        const [cekdata] = await conn_ho.query(`select concat(a.toko,'-',trim(namatoko))as nama_toko,a.taskid,
+        const cekdata = await conn_ho.query(`select concat(a.toko,'-',trim(namatoko))as nama_toko,a.taskid,
         ifnull(a.jam_konfirm_am,'') as jam_konfirm_am,ifnull(a.jam_konfirm_oto,'') as jam_konfirm_oto,
         ifnull(pbro_status,'') as pbro_status,tanggal
         from m_pbro_hold_act a
@@ -361,9 +348,9 @@ const HoldPB = async (toko) => {
 
 const getBM= async (kdcab) => { 
     try {  
-        const [id_cab] = await conn_ho.query(`SELECT id from m_branch where branch_code = '${kdcab}'`);
+        const id_cab = await conn_ho.query(`SELECT id from m_branch where branch_code = '${kdcab}'`);
 
-        const [data] = await conn_ho.query(`
+        const data = await conn_ho.query(`
         select nama,ifnull(id_chat,'-') as id_chat,concat('#',replace(cover,',','##'),'#') as coverage
             from m_users a
             left join m_branch b on a.kdcab = b.id
@@ -401,7 +388,7 @@ const updateDataOto= async (dc,toko,taskid) => {
 const cekCabang = async (id) => { 
     try { 
 
-        const [data] = await conn_ho.query(`SELECT kdcab,count(*) as total FROM m_wa_group where id_group='${id}' group by kdcab`);
+        const data = await conn_ho.query(`SELECT kdcab,count(*) as total FROM m_wa_group where id_group='${id}' group by kdcab`);
        
         return data
     } catch (e) {
@@ -410,7 +397,7 @@ const cekCabang = async (id) => {
 }
 const getipiriscab = async (kdcab) => { 
     try {
-        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where kdcab = '${kdcab}'  and jenis='IRIS'`);
+        const data = await conn_ho.query(`SELECT * FROM m_server_iris where kdcab = '${kdcab}'  and jenis='IRIS'`);
         return data
     } catch (e) {
         
@@ -420,7 +407,7 @@ const getipiriscab = async (kdcab) => {
 const getipiriscab_reg4 = async () => { 
     try {
         //
-        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab in('G097','G237','G146','G305','G174','G236','G234','G232','G224','G177','G149','G030','G034','G301','G158','G148','G025','G004') order by kdcab`);
+        const data = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and reg='reg4' and kdcab not in('G097','G099') order by kdcab`);
         return data
     } catch (e) {
         return "Gagal"
@@ -429,7 +416,7 @@ const getipiriscab_reg4 = async () => {
 const getipiriscab_allcabang = async () => { 
     try {
         //
-        const [data] = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab != 'G099' order by reg,kdcab`);
+        const data = await conn_ho.query(`SELECT * FROM m_server_iris where jenis='IRIS' and kdcab not in('G097','G099') order by reg,kdcab`);
         return data
     } catch (e) {
         console.log(e)
@@ -614,7 +601,7 @@ const HarianTampung_new = async (ipnya,tanggal) => {
 
             const cabang  = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, { sql: queryx, rowsAsArray: true })
             
-            const [cekTokoExt] = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended where kodegudang='${ipnya.kdcab}'`) 
+            const cekTokoExt = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended where kodegudang='${ipnya.kdcab}'`) 
             
             if(cekTokoExt[0].total > 0){
                 query_ho_rekap = ` 
@@ -661,7 +648,7 @@ const HarianTampung_new = async (ipnya,tanggal) => {
                     group by kdcab
                 `         
             } 
-            const [rows] = await conn_ho.query(query_ho_rekap)
+            const rows = await conn_ho.query(query_ho_rekap)
  
             if(rows ==="error")
             return {
@@ -712,7 +699,7 @@ const HarianTampungCabang_new = async (ipnya,tanggal) => {
 
             const cabang  = await conn_any.zconn(ipnya.ipserver,ipnya.user,ipnya.pass,ipnya.database, 3306, { sql: queryx, rowsAsArray: true })
             
-            const [cekTokoExt] = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended where kodegudang='${ipnya.kdcab}'`) 
+            const cekTokoExt = await conn_ho.query(`Select count(*) as total from posrealtime_base.toko_extended where kodegudang='${ipnya.kdcab}'`) 
             
             if(cekTokoExt[0].total > 0){
                 query_ho_rekap = ` 
@@ -744,7 +731,7 @@ const HarianTampungCabang_new = async (ipnya,tanggal) => {
                         having ket = 'Belum'
                 `         
             } 
-            const [rows] = await conn_ho.query(query_ho_rekap)
+            const rows = await conn_ho.query(query_ho_rekap)
  
             if(rows ==="error")
             return {
@@ -795,7 +782,7 @@ const HarianSalah = async (yesterday) => {
             (select concat(kodegudang,kodetoko) from posrealtime_base.toko_extended)
         ) a
         left join (select kodegudang,kodetoko from posrealtime_base.toko_extended) b on a.kdtk = b.kodetoko`
-        const [rows] = await conn_ho.query(queryx)
+        const rows = await conn_ho.query(queryx)
         
         return rows
 
@@ -823,7 +810,7 @@ const HarianTokoLibur = async (yesterday) => {
             and a.tanggal='${yesterday}'
             group by a.kdcab
             order by belum desc;`
-        const [rows] = await conn_ho.query(queryx)        
+        const rows = await conn_ho.query(queryx)        
         return rows
 
     } catch (e) { 
@@ -848,7 +835,7 @@ const HarianTokoLiburCabang = async (kdcab,tanggal) => {
         and a.tanggal = '${tanggal}'
         and c.nama_file is null
         order by kdam,kdas,toko;`
-        const [belum] = await conn_ho.query(queryx)
+        const belum = await conn_ho.query(queryx)
         
         // const detail = belum.map( (r) =>{
         //     return `'${r.toko}'`
@@ -898,7 +885,7 @@ const cekHarianToko = async (kdtk,tanggal) => {
         left join 
         (select kdtk, nama_file from m_abs_harian_file where tanggal_harian='${tanggal}' ) b  on a.Kodetoko = b.kdtk 
         where a.kodetoko='${kdtk}';`
-        const [belum] = await conn_ho.query(queryx)
+        const belum = await conn_ho.query(queryx)
           
         return belum
 
@@ -931,7 +918,7 @@ const HarianTokoLiburCabangAm = async (kdcab,yesterday) => {
         and a.tanggal = '${yesterday}'
         GROUP BY am) a order by belum desc
         ;`
-        const [rows] = await conn_ho.query(queryx)
+        const rows = await conn_ho.query(queryx)
         
         return rows
 
@@ -961,7 +948,7 @@ from(
         and a.tanggal='${yesterday}'
         and a.kdcab='${kdcab}') a
         ;`
-        const [rows] = await conn_ho.query(queryx)
+        const rows = await conn_ho.query(queryx)
         
         return rows
 
@@ -1024,7 +1011,7 @@ const dataTokoWT = async () => {
         const queryx = `select kodegudang as kdcab,kodetoko as kdtk,left(namatoko,10) as namatoko,tglbuka  
         from posrealtime_base.toko_extended where tglbuka >= curdate()
         and kodegudang in('G236','G237') order by kodegudang,kodetoko;`
-        const [rows] = await conn_ho.query(queryx)
+        const rows = await conn_ho.query(queryx)
         
         return rows
 
@@ -1102,7 +1089,7 @@ const absenPbbh = async (ipnya,tanggal) => {
             group by a.kodegudang,nama
             `          
             
-            const [rows] = await conn_ho.query(query_ho_rekap)
+            const rows = await conn_ho.query(query_ho_rekap)
             
             if(rows ==="error"){
                 return {

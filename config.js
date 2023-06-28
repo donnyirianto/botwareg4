@@ -19,7 +19,7 @@ const config = {
     database: process.env.DB_NAME_HO,
     port: process.env.DB_PORT_HO,
     waitForConnections: true,
-    connectionLimit: 2,
+    connectionLimit: 1,
     queueLimit: 0,
     dateStrings:true,
     multipleStatements: true

@@ -1,14 +1,17 @@
-const mysql = require('mysql2/promise');
-const config = require('../config');
-
-const conn =  mysql.createPool(config.dbho); 
-
+const axios = require("axios");
 async function query(query) {
-  const result = await conn.query(query)
-
-  return result
-} 
+  try {
+    const result = await axios.post('http://192.168.131.71:7272/api/v1/mysql/query', {query : query}) 
+    return result.data.data[0]
+  } catch (error) {   
+    throw error
+  }
+}
+async function execute(query) {
+  const result = await conn.execute(query) 
+  return result 
+}
 
 module.exports = {
-  query 
+  query, execute
 }

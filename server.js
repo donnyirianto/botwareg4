@@ -18,7 +18,6 @@ var taskHarianIrisAllImage = true
 var taskPBHOLDEDP = true
 var taskPBHOLDCabang = true
 var taskOto = true
-var taskOto = true
 var taskExportWT = true
 var taskPbbhTampung = true
 var taskHarianTampungAllImage = true
@@ -387,12 +386,12 @@ async function start(client) {
     
     // Penjawabamn Otomatis 15 menit
     cron.schedule('*/2 * * * *', async() => { 
-        
+            console.log(`Cek Penjawaban Otomatis 15 menit`)
           if (taskOto) { 
             taskOto = false    
                 try {         
                     const data_otox = await Controller.AkunCabangOto() 
-
+                    console.log(`Cek Penjawaban Otomatis 15 menit ${data_otox}`)
                     for(roto of data_otox){  
                         var id_chat = roto.id_chat === "" ? "" : `@${roto.id_chat}`
                         //var pesan_oto = `Bapak ${roto.am} ${id_chat}\n📈 (${roto.dc}) ${roto.toko}-${roto.namatoko}\nTanggal PB: ${roto.tanggal}\nPB-FT : ${roto.nilaipb}\nAVG Sales :  ${roto.avgsales}\nAkan kami *Teruskan* karena informasi kami telah lebih dari 15 menit belum mendapat jawaban.`
@@ -408,12 +407,10 @@ async function start(client) {
                                 }
                                 
                                 console.log(`${roto.id_chat}@c.us`, pesan_oto_for_am)    
-                            }
-                            
-
+                            } 
                         } 
-                    }
-                   
+                        console.log(`Penjawaban Otomatis 15 menit ${roto}`)
+                    } 
                     taskOto = true
 
             } catch (err) {
@@ -429,7 +426,7 @@ async function start(client) {
     ANCHOR Pengecekan Request PBHOLD Jagaan 5x SPD Ke User AM Cabang
     ============================================
     */
-    cron.schedule('*/24 * * * * *', async() => { 
+    cron.schedule('*/2 * * * *', async() => { 
         //( async() => {    
           if (taskPBHOLDCabang) { 
                 taskPBHOLDCabang = false    
@@ -477,7 +474,7 @@ async function start(client) {
         Pengecekan Request Lebih dari 30 Menit 
     =========================================
     */
-    cron.schedule('*/10 * * * *', async() => { 
+    cron.schedule('*/15 * * * *', async() => { 
         //( async() => {    
           if (taskPBReq30) { 
                 taskPBReq30 = false    
@@ -513,7 +510,7 @@ async function start(client) {
     ANCHOR Pengecekan Request PBHOLD Jagaan 5x SPD 
     ============================================
     */
-    cron.schedule('*/5 * * * *', async() => { 
+    cron.schedule('*/10 * * * *', async() => { 
         //( async() => {    
           if (taskPBHOLD) { 
                 taskPBHOLD = false    
@@ -549,7 +546,7 @@ async function start(client) {
     Pengecekan PBHOLD Jagaan 5x SPD OLEH EDP Krn ST Tidak Wajar
     ============================================
     */
-    cron.schedule('*/4 * * * *', async() => { 
+    cron.schedule('*/10 * * * *', async() => { 
         //( async() => {    
           if (taskPBHOLDEDP) { 
                 taskPBHOLDEDP = false    
@@ -582,7 +579,7 @@ async function start(client) {
         PENGECEKAN GAGAL RO REGULER => KONFIRM KE HO
     ============================================
     */
-    cron.schedule('*/4 * * * *', async() => { 
+    cron.schedule('*/10 * * * *', async() => { 
         //( async() => {    
           if (taskGagalRoReg) { 
                 taskGagalRoReg = false    
@@ -625,8 +622,9 @@ async function start(client) {
                 console.log("[START] Data Harian Terkendala Koneksi: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {         
                     const jam = dayjs().format("HH")
-                    if(jam > 6 && jam < 11 ){ 
+                    if(jam > 6 && jam < 13 ){ 
                         const data_harian_koneksi = await Controller.DataHarianKoneksi();
+                        console.log(data_harian_koneksi)
                         if(data_harian_koneksi != "None"){
                             
                              await client.sendText(group_testbot, data_harian_koneksi);   
