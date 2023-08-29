@@ -970,7 +970,7 @@ async function start(client) {
         //( async() => {    
           if (taskEmailDarurat) { 
                 taskEmailDarurat = false    
-                console.log("[START] taskEmailDarurat: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                //console.log("[START] taskEmailDarurat: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                 try {     
                     const allPending = await clientRedis.keys("emaildarurat-*")
                     for(let i of allPending){
@@ -985,10 +985,10 @@ async function start(client) {
                          
                     }
                     
-                    console.log("[END] taskEmailDarurat :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    //console.log("[END] taskEmailDarurat :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     taskEmailDarurat = true
             } catch (err) {
-                    console.log("[END] ERROR !!! taskEmailDarurat :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    //console.log("[END] ERROR !!! taskEmailDarurat :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     taskEmailDarurat = true
                     console.log(err);
             }
