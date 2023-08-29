@@ -24,7 +24,7 @@ var taskHarianTampungAllImage = true
 //var taskUpdRecid = true
 var taskRekapHold = true
 var taskDataHarianjam9 = true
-
+var taskResolved = true
 // LIST CONTACT ======== 
 const group_testbot = `120363038749627074@g.us`
 const group_iris = `6281998905050-1628158252@g.us`
@@ -485,6 +485,7 @@ async function start(client) {
                         const xplode_cabPBReq30 = cabPBReq30.split(",")
                         for(var r of xplode_cabPBReq30){
                             var data_ro_30m = await Controller.DataRo30Menit(r);
+                            console.log(data_ro_30m)
                             if(data_ro_30m != "None"){
                                 if(r.substr(0,2) != "GI"){
                                     await client.sendText(group_testbot, data_ro_30m); 
@@ -521,6 +522,7 @@ async function start(client) {
                     const xplode_cabPbHold = await Controller.ServerPbroReg4()
                     for(var r_hold of xplode_cabPbHold){
                         const data_pb_hold = await Controller.DataPbHold(r_hold.kdcab);
+                        console.log(data_pb_hold)
                         if(data_pb_hold != "None"){
                             
                             await client.sendText(group_testbot, data_pb_hold);  
@@ -921,6 +923,40 @@ async function start(client) {
                     console.log('Error Kirim Harian All::' + err);
             }
         } 
+    });
+
+    /* 
+    ============================================
+    Co Resolved
+    ============================================
+    */
+    cron.schedule('*/5 * * * *', async() => { 
+        //( async() => {    
+          if (taskResolved) { 
+                taskResolved = false    
+                console.log("[START] Task CO Resolved: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {     
+                    const data_co = await Controller.coResolved()
+                    for(let r_co of data_co){
+                        let pesanResolved = `\`\`\`Segera Tutup CO Resolved Anda!!\nNo Komplain: ${r_co.No_Komplain}\nToko: ${r_co.Toko}\nTgl Selesai Cbg: ${r_co.tanggal_selesai}\nCO Toko: ${r_co.co_toko}\n\nJawaban CO Relasi: ${r_co.jawaban_cabang}\`\`\``
+                        await client.sendText(`${r_co.id_chat}@c.us`, pesanResolved); 
+                        await client.sendText(`${user_reg4_rianto}`, pesanResolved);
+                        await client.sendText(`${user_reg4_putra}`, pesanResolved);
+                        await client.sendText(`${user_reg4_agus}`, pesanResolved);
+                        await client.sendText(`${user_reg4_yoyon}`, pesanResolved);
+
+                        console.log(`Task CO Resolved - Ada :: ${pesanResolved}`)  
+                         
+                    }
+                    
+                    console.log("[END] Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskResolved = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskResolved = true
+                    console.log(err);
+            }
+          } 
     });
 
     /* =================================================*/

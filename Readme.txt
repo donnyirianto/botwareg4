@@ -5,7 +5,7 @@ Bot Wa Reg 4  V 2.0.0
 npm uninstall @open-wa/wa-automate mysql2 dayjs dotenv node-cron
 
 ---install 
-npm i --save @open-wa/wa-automate mysql2 dayjs dotenv node-cron
+npm i --save @open-wa/wa-automate mysql2 dayjs dotenv node-cron axios 
 ------------------------------------------------------------------
 on Linux 
 sudo apt-get update

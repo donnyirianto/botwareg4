@@ -1112,6 +1112,37 @@ const absenPbbh = async (ipnya,tanggal) => {
     }
 }
 
+
+const coResolved = async ()=>{
+    try {
+        const queryx = `select a.no_komplain, a.Kode_Lokasi_Asal as Toko,a.Diambil_Oleh as Dibuat_oleh,nik_pengambil,c.id_chat ,
+        b.tanggal_selesai,
+        a.Deskripsi as co_toko,
+        b.solusi as jawaban_cabang
+        from 
+        (select No_Komplain,Tujuan_Relasi_Komplain,Cabang_Lokasi_Asal,Kode_Lokasi_Asal,Diambil_Oleh,nik_pengambil,Deskripsi from dt_complain
+        where Tujuan_Relasi_Komplain !=''
+        and date(Tanggal_Buat)=curdate()
+        and Kode_Lokasi_Tujuan ='RE04') a 
+        left join (
+        select No_Komplain,tanggal_selesai,Status_Komplain,Diambil_Oleh,Deskripsi,solusi  from dt_complain 
+        where 
+        date(Tanggal_Buat)=curdate()
+        and Kode_Lokasi_Asal ='RE04'
+        ) b on a.Tujuan_Relasi_Komplain = b.No_Komplain
+        left join m_users c on a.nik_pengambil = c.nik
+        where b.Status_Komplain = 'RESOLVED';`
+
+        const result = await conn_ho.query(queryx)
+        
+        return result
+
+    } catch (e) { 
+        
+        return "Gagal"
+    }
+}
+
 module.exports = {
     DataRo30Menit, DataPbHold, DataGagalRoReg,dataserver,getipiriscab_reg4,getipiriscab_allcabang,
     HarianTampung_new,HarianTampungCabang_new,
@@ -1119,5 +1150,5 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh,ServerPbroReg4
+    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh,ServerPbroReg4,coResolved
 }

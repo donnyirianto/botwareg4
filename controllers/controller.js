@@ -1406,6 +1406,16 @@ const dataTokoWT = async () => {
     }
 }
 
+const coResolved = async () => {
+    try {  
+
+        const data = await Models.coResolved() 
+        
+        return data
+    } catch (e) {
+        throw e
+    }
+}
 
 const absenPbbh = async () => {
     try {
@@ -1471,7 +1481,7 @@ const absenPbbh = async () => {
     }
 }
 module.exports = {
-    DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,
+    DataRo30Menit,DataPbHold,DataGagalRoReg,DataHarianKoneksi,coResolved,
     HarianIris,HarianIrisAll, HarianIrisCabang,HarianIrisAllImage, 
     HarianTampung_new,HarianTampung_new_allcabang,HarianTampungCabang, 
     HarianSalah,HarianTokoLibur,HarianTokoLiburCabang,
