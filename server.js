@@ -4,6 +4,7 @@ const fs = require('fs');
 var dayjs = require("dayjs");
 const Controller = require("./controllers/controller.js");
 const conn_ho = require('./services/dbho');
+const {clientRedis} = require("./services/redis");
 
 // LIST TASK ======== 
 var taskPBReq30 = true
@@ -25,6 +26,7 @@ var taskHarianTampungAllImage = true
 var taskRekapHold = true
 var taskDataHarianjam9 = true
 var taskResolved = true
+var taskEmailDarurat = true
 // LIST CONTACT ======== 
 const group_testbot = `120363038749627074@g.us`
 const group_iris = `6281998905050-1628158252@g.us`
@@ -954,6 +956,40 @@ async function start(client) {
             } catch (err) {
                     console.log("[END] ERROR !!! Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     taskResolved = true
+                    console.log(err);
+            }
+          } 
+    });
+
+    /* 
+    ============================================
+    Task taskEmailDarurat
+    ============================================
+    */
+    cron.schedule('*/10 * * * * *', async() => { 
+        //( async() => {    
+          if (taskEmailDarurat) { 
+                taskEmailDarurat = false    
+                console.log("[START] taskEmailDarurat: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {     
+                    const allPending = await clientRedis.keys("emaildarurat-*")
+                    for(let i of allPending){
+                        const pesanDarurat = await clientRedis.get(i)
+
+                        await client.sendText(`${group_testbot}`, pesanDarurat);
+                        await client.sendText(`${user_reg4_donny}`, pesanDarurat);
+                        await client.sendText(`${user_reg4_agus}`, pesanDarurat);
+                        await client.sendText(`${user_reg4_imam}`, pesanDarurat);
+                        await clientRedis.del(i)
+                        console.log(`Ada Darurat :: ${pesanDarurat}`)  
+                         
+                    }
+                    
+                    console.log("[END] taskEmailDarurat :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskEmailDarurat = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! taskEmailDarurat :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskEmailDarurat = true
                     console.log(err);
             }
           } 
