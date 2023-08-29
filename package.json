@@ -16,7 +16,10 @@
     "dayjs": "^1.11.8",
     "dotenv": "^16.1.4",
     "json2csv": "^5.0.7",
+    "mailparser": "^3.6.5",
     "mysql2": "^3.3.3",
-    "node-cron": "^3.0.2"
+    "node-cron": "^3.0.2",
+    "node-imap": "^0.9.6",
+    "redis": "^4.6.8"
   }
 }
