@@ -91,6 +91,7 @@ async function start(client) {
     4. Absensi File Harian Toko Libur
     5. Download WT Toko
     6. Cek Update Program
+    7. Pengecekan Toko Opening H-1
 
     *_Contoh:_*
     HR T000 (ketik HR KODETOKO untuk Absensi Harian Server)
@@ -100,7 +101,8 @@ async function start(client) {
     2 G001 (ketik 2 KODECABANG untuk Absensi Tampung Per Cabang)
     4 G001 (ketik 4 KODECABANG untuk Absensi File Harian Toko Libur)
     5 G237 TDHB 2023-01-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
-    6 (lalu send untuk mendapat informasi update program)
+    6 (lalu send untuk mendapat Informasi Update Program)
+    7 (lalu send untuk mendapat Informasi Toko Opening H-1)
     `
     const IrisNotice = `👋 Halo`
     console.log(IrisNotice)
@@ -284,6 +286,18 @@ async function start(client) {
                                     }
                                 }else{
                                     await client.sendText(message.from, `Tidak Ada Informasi Update Program`);
+                                } 
+                                break;
+
+                            case '7': 
+                            
+                                let dataReminderOpening = await conn_ho.query(`select kdcab,kdtk,nama,tglbuka from m_toko_baru where tglbuka = DATE_ADD(curdate(), INTERVAL 1 DAY) and kdcab in(select kdcab from m_server_iris where jenis='IRIS' and reg='REG4')`);
+                                if(dataReminderOpening.length > 0){
+                                    for(let i of dataReminderOpening){
+                                        await client.sendText(group_testbot,`*INFORMASI* \n${i.kdcab} ${i.kdtk}-${i.nama}\nAkan Opening Besok pada Tanggal ${i.tglbuka}\nSilahkan lakukan pengecekan kelengkapan Setting Toko Baru!!`)
+                                    }
+                                }else{
+                                    await client.sendText(message.from, `Tidak Ada Informasi Toko Opening untuk Besok`);
                                 } 
                                 break;
 
@@ -1021,28 +1035,58 @@ async function start(client) {
     // Reminder Update Program
     /* =================================================*/
     cron.schedule('55 5,6,7,8,9,10,15,16,17,18,19 * * *', async() => { 
+    //( async() => {    
+        if (taskUpdProg) { 
+            taskUpdProg = false    
+                console.log("[START] Reminder Update Program: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                try {       
+                        let dataReminder = await conn_ho.query(`select id,keterangan from m_updprog_reminder where berakhir='N' order by addtime asc`);
+                        if(dataReminder.length > 0){
+                            for(let i of dataReminder){
+                                await client.sendText(group_testbot,`${i.id}\n${i.keterangan}`)
+                            }
+                            
+                            console.log("Ada Reminder Update Program:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))
+                        }else{
+                            console.log("Reminder Update Program:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                        }  
+                    
+                    console.log("[END] Reminder Update Program:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskUpdProg = true
+            } catch (err) {
+                    console.log("[END] ERROR !!! Reminder Update Program:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    taskUpdProg = true
+                    console.log('Reminder Update Program::' + err);
+            }
+        } 
+    });
+
+    /* =================================================*/
+    // Reminder Toko Opening
+    /* =================================================*/
+    cron.schedule('55 8,9,10,13,14,15,16,17 * * *', async() => { 
         //( async() => {    
-            if (taskUpdProg) { 
-                taskUpdProg = false    
-                    console.log("[START] Reminder Update Program: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+            if (taskOpening) { 
+                taskOpening = false    
+                    console.log("[START] Reminder Toko Opening: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     try {       
-                            let dataReminder = await conn_ho.query(`select id,keterangan from m_updprog_reminder where berakhir='N' order by addtime asc`);
-                            if(dataReminder.length > 0){
-                                for(let i of dataReminder){
-                                    await client.sendText(group_testbot,`${i.id}\n${i.keterangan}`)
+                            let dataReminderOpening = await conn_ho.query(`select kdcab,kdtk,nama,tglbuka from m_toko_baru where tglbuka = DATE_ADD(curdate(), INTERVAL 1 DAY) and kdcab in(select kdcab from m_server_iris where jenis='IRIS' and reg='REG4')`);
+                            if(dataReminderOpening.length > 0){
+                                for(let i of dataReminderOpening){
+                                    await client.sendText(group_testbot,`*INFORMASI* \n${i.kdcab} ${i.kdtk}-${i.nama}\nAkan Opening Besok pada Tanggal ${i.tglbuka}\nSilahkan lakukan pengecekan kelengkapan Setting Toko Baru!!`)
                                 }
                                 
-                                console.log("Ada Reminder Update Program:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))
+                                console.log("Ada Toko Opening:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))
                             }else{
-                                console.log("Reminder Update Program:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                                console.log("ReminderToko Opening:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                             }  
                         
-                        console.log("[END] Reminder Update Program:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                        taskUpdProg = true
+                        console.log("[END] Reminder Toko Opening:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskOpening = true
                 } catch (err) {
-                        console.log("[END] ERROR !!! Reminder Update Program:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                        taskUpdProg = true
-                        console.log('Reminder Update Program::' + err);
+                        console.log("[END] ERROR !!! Reminder Toko Opening:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskOpening = true
+                        console.log('Reminder Toko Opening::' + err);
                 }
             } 
         });
