@@ -28,6 +28,7 @@ var taskDataHarianjam9 = true
 var taskResolved = true
 var taskEmailDarurat = true
 var taskUpdProg= true
+var taskOpening = true
 // LIST CONTACT ======== 
 const group_testbot = `120363038749627074@g.us`
 const group_iris = `6281998905050-1628158252@g.us`
@@ -294,7 +295,7 @@ async function start(client) {
                                 let dataReminderOpening = await conn_ho.query(`select kdcab,kdtk,nama,tglbuka from m_toko_baru where tglbuka = DATE_ADD(curdate(), INTERVAL 1 DAY) and kdcab in(select kdcab from m_server_iris where jenis='IRIS' and reg='REG4')`);
                                 if(dataReminderOpening.length > 0){
                                     for(let i of dataReminderOpening){
-                                        await client.sendText(group_testbot,`*INFORMASI* \n${i.kdcab} ${i.kdtk}-${i.nama}\nAkan Opening Besok pada Tanggal ${i.tglbuka}\nSilahkan lakukan pengecekan kelengkapan Setting Toko Baru!!`)
+                                        await client.sendText(message.from,`*INFORMASI* \n${i.kdcab} ${i.kdtk}-${i.nama}\nAkan Opening Besok pada Tanggal ${dayjs(i.tglbuka).format("YYYY-MM-DD")}\nSilahkan lakukan pengecekan kelengkapan Setting Toko Baru!!`)
                                     }
                                 }else{
                                     await client.sendText(message.from, `Tidak Ada Informasi Toko Opening untuk Besok`);
@@ -1064,7 +1065,7 @@ async function start(client) {
     /* =================================================*/
     // Reminder Toko Opening
     /* =================================================*/
-    cron.schedule('55 8,9,10,13,14,15,16,17 * * *', async() => { 
+    cron.schedule('55 7,8,9,10,13,15,16 * * *', async() => { 
         //( async() => {    
             if (taskOpening) { 
                 taskOpening = false    
@@ -1073,7 +1074,7 @@ async function start(client) {
                             let dataReminderOpening = await conn_ho.query(`select kdcab,kdtk,nama,tglbuka from m_toko_baru where tglbuka = DATE_ADD(curdate(), INTERVAL 1 DAY) and kdcab in(select kdcab from m_server_iris where jenis='IRIS' and reg='REG4')`);
                             if(dataReminderOpening.length > 0){
                                 for(let i of dataReminderOpening){
-                                    await client.sendText(group_testbot,`*INFORMASI* \n${i.kdcab} ${i.kdtk}-${i.nama}\nAkan Opening Besok pada Tanggal ${i.tglbuka}\nSilahkan lakukan pengecekan kelengkapan Setting Toko Baru!!`)
+                                    await client.sendText(group_testbot,`*INFORMASI* \n${i.kdcab} ${i.kdtk}-${i.nama}\nAkan Opening Besok pada Tanggal ${dayjs(i.tglbuka).format("YYYY-MM-DD")}\nSilahkan lakukan pengecekan kelengkapan Setting Toko Baru!!`)
                                 }
                                 
                                 console.log("Ada Toko Opening:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))
