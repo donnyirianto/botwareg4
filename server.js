@@ -27,6 +27,7 @@ var taskRekapHold = true
 var taskDataHarianjam9 = true
 var taskResolved = true
 var taskEmailDarurat = true
+var taskUpdProg= true
 // LIST CONTACT ======== 
 const group_testbot = `120363038749627074@g.us`
 const group_iris = `6281998905050-1628158252@g.us`
@@ -89,6 +90,7 @@ async function start(client) {
     3. Peletakan File Harian Salah Server
     4. Absensi File Harian Toko Libur
     5. Download WT Toko
+    6. Cek Update Program
 
     *_Contoh:_*
     HR T000 (ketik HR KODETOKO untuk Absensi Harian Server)
@@ -98,6 +100,7 @@ async function start(client) {
     2 G001 (ketik 2 KODECABANG untuk Absensi Tampung Per Cabang)
     4 G001 (ketik 4 KODECABANG untuk Absensi File Harian Toko Libur)
     5 G237 TDHB 2023-01-20 (ketik 5 KODECABANG KODETOKO TANGGAL untuk download WT Toko)
+    6 (lalu send untuk mendapat informasi update program)
     `
     const IrisNotice = `👋 Halo`
     console.log(IrisNotice)
@@ -250,7 +253,7 @@ async function start(client) {
                                     }
                                     break; 
                             
-                            case '5':
+                                    case '5':
                                     
                                     if(typeof pesan[1] === "undefined"){
                                         await client.sendText(message.from, "Format Anda Salah!!");
@@ -272,6 +275,25 @@ async function start(client) {
                                         
                                     } 
                                     break;
+                            case '6': 
+                            
+                                let dataReminder = await conn_ho.query(`select id,keterangan from m_updprog_reminder where berakhir='N' order by addtime asc`);
+                                if(dataReminder.length > 0){
+                                    for(let i of dataReminder){
+                                        await client.sendText(message.from,`${i.id}\n${i.keterangan}`)
+                                    }
+                                }else{
+                                    await client.sendText(message.from, `Tidak Ada Informasi Update Program`);
+                                } 
+                                break;
+
+                            case 'STOP': 
+                                await conn_ho.query(`UPDATE m_updprog_reminder SET berakhir='Y' where id='${pesan[1]}';`);
+
+                                await client.sendText(message.from,`Reminder Update Program dengan ID : ${pesan[1]} berhasil di STOP`)
+                                
+                            break;
+
                             case 'HR':
                                 console.log(`Ada cek HR`)
                                 await client.sendText(message.from, "🕛 Mohon ditunggu, kami sedang proses data");
@@ -932,7 +954,7 @@ async function start(client) {
     Co Resolved
     ============================================
     */
-    cron.schedule('*/5 * * * *', async() => { 
+    cron.schedule('*/15 * * * *', async() => { 
         //( async() => {    
           if (taskResolved) { 
                 taskResolved = false    
@@ -942,10 +964,10 @@ async function start(client) {
                     for(let r_co of data_co){
                         let pesanResolved = `\`\`\`Segera Tutup CO Resolved Anda!!\nNo Komplain: ${r_co.No_Komplain}\nToko: ${r_co.Toko}\nTgl Selesai Cbg: ${r_co.tanggal_selesai}\nCO Toko: ${r_co.co_toko}\n\nJawaban CO Relasi: ${r_co.jawaban_cabang}\`\`\``
                         await client.sendText(`${r_co.id_chat}@c.us`, pesanResolved); 
-                        await client.sendText(`${user_reg4_rianto}`, pesanResolved);
-                        await client.sendText(`${user_reg4_putra}`, pesanResolved);
-                        await client.sendText(`${user_reg4_agus}`, pesanResolved);
-                        await client.sendText(`${user_reg4_yoyon}`, pesanResolved);
+                        // await client.sendText(`${user_reg4_rianto}`, pesanResolved);
+                        // await client.sendText(`${user_reg4_putra}`, pesanResolved);
+                        // await client.sendText(`${user_reg4_agus}`, pesanResolved);
+                        // await client.sendText(`${user_reg4_yoyon}`, pesanResolved);
 
                         console.log(`Task CO Resolved - Ada :: ${pesanResolved}`)  
                          
@@ -995,6 +1017,35 @@ async function start(client) {
           } 
     });
 
+    /* =================================================*/
+    // Reminder Update Program
+    /* =================================================*/
+    cron.schedule('55 5,6,7,8,9,10,15,16,17,18,19 * * *', async() => { 
+        //( async() => {    
+            if (taskUpdProg) { 
+                taskUpdProg = false    
+                    console.log("[START] Reminder Update Program: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    try {       
+                            let dataReminder = await conn_ho.query(`select id,keterangan from m_updprog_reminder where berakhir='N' order by addtime asc`);
+                            if(dataReminder.length > 0){
+                                for(let i of dataReminder){
+                                    await client.sendText(group_testbot,`${i.id}\n${i.keterangan}`)
+                                }
+                                
+                                console.log("Ada Reminder Update Program:: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))
+                            }else{
+                                console.log("Reminder Update Program:: NONE " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
+                            }  
+                        
+                        console.log("[END] Reminder Update Program:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskUpdProg = true
+                } catch (err) {
+                        console.log("[END] ERROR !!! Reminder Update Program:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskUpdProg = true
+                        console.log('Reminder Update Program::' + err);
+                }
+            } 
+        });
     /* =================================================*/
     //          Report Data Harian Tampung
     /* =================================================*/
