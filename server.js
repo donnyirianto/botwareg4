@@ -113,11 +113,9 @@ async function start(client) {
         console.log(`Start Error:` + error)
     }
     
-    console.log(`Lewat Func Send Hello`)
     
     client.onMessage(async (message) => {
         try{
-            console.log(message.from);
         
             var Inpesan = message.body.toUpperCase()        
             var pesan = Inpesan.split(" ")  
@@ -132,8 +130,7 @@ async function start(client) {
             
             if(cekcabang.length > 0 || message.from === group_testbot){
                 
-                if(pesan[0] === "TAG"){
-                    console.log("TAG")
+                if(pesan[0] === "TAG"){ 
                         
                     var a = message.author.split("@");
                     var usermention = `@${a[0]}`
@@ -325,8 +322,7 @@ async function start(client) {
                                 break;
                         }
                     }
-                    
-                console.log("Guys Chat : " + message.from )
+                     
             } 
         } catch(error){
             console.log(`WARNIIIINGGGG!!!!!!!`);
@@ -429,8 +425,7 @@ async function start(client) {
           if (taskOto) { 
             taskOto = false    
                 try {         
-                    const data_otox = await Controller.AkunCabangOto() 
-                    console.log(`Cek Penjawaban Otomatis 15 menit ${data_otox}`)
+                    const data_otox = await Controller.AkunCabangOto()  
                     for(roto of data_otox){  
                         var id_chat = roto.id_chat === "" ? "" : `@${roto.id_chat}`
                         //var pesan_oto = `Bapak ${roto.am} ${id_chat}\n📈 (${roto.dc}) ${roto.toko}-${roto.namatoko}\nTanggal PB: ${roto.tanggal}\nPB-FT : ${roto.nilaipb}\nAVG Sales :  ${roto.avgsales}\nAkan kami *Teruskan* karena informasi kami telah lebih dari 15 menit belum mendapat jawaban.`
@@ -444,8 +439,7 @@ async function start(client) {
                                 } catch (error) {
                                     console.log("ERROR Penjawaban OTO: " + error)
                                 }
-                                
-                                console.log(`${roto.id_chat}@c.us`, pesan_oto_for_am)    
+                                 
                             } 
                         } 
                         console.log(`Penjawaban Otomatis 15 menit ${roto}`)
@@ -484,7 +478,7 @@ async function start(client) {
                             if(data_pb_hold_cabang.id_chat !=""){
                                 try {
                                     await client.sendText(`${data_pb_hold_cabang.id_chat}@c.us`, data_pb_hold_cabang.data_for_am);
-                                    console.log(`${data_pb_hold_cabang.id_chat}@c.us`, data_pb_hold_cabang.data_for_am)
+                                    
                                     //await client.sendText(`6285156557808@c.us`, data_pb_hold_cabang.data_for_am);    
                                 } catch (error) {
                                     console.log("ERROR Info Hold ke AM: " + error)
@@ -492,7 +486,7 @@ async function start(client) {
                             }
                              
                             await conn_ho.query(`UPDATE m_pbro_hold_act set sent_wa = 1, jam_sent_wa = now() where date(created_at)=curdate() and toko='${r_akun.toko}' and taskid = '${r_akun.taskid}' and gudang = '${r_akun.dc}';`)
-                            console.log(`UPDATE m_pbro_hold_act set sent_wa = 1, jam_sent_wa = now() where date(created_at)=curdate() and toko='${r_akun.toko}' and taskid = '${r_akun.taskid}' and gudang = '${r_akun.dc}';`)
+                           
                             
                             console.log("INFO Request PBHOLD Cabang - Ada :: Toko " + r_akun.toko+ " Jam :" +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         } 
@@ -524,7 +518,7 @@ async function start(client) {
                         const xplode_cabPBReq30 = cabPBReq30.split(",")
                         for(var r of xplode_cabPBReq30){
                             var data_ro_30m = await Controller.DataRo30Menit(r);
-                            console.log(data_ro_30m)
+                            
                             if(data_ro_30m != "None"){
                                 if(r.substr(0,2) != "GI"){
                                     await client.sendText(group_testbot, data_ro_30m); 
@@ -561,12 +555,11 @@ async function start(client) {
                     const xplode_cabPbHold = await Controller.ServerPbroReg4()
                     for(var r_hold of xplode_cabPbHold){
                         const data_pb_hold = await Controller.DataPbHold(r_hold.kdcab);
-                        console.log(data_pb_hold)
+                        
                         if(data_pb_hold != "None"){
                             
                             await client.sendText(group_testbot, data_pb_hold);  
 
-                            console.log("Request PBHOLD - Ada :: "+ r_hold.kdcab + " Jam" +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         } 
                     }
                     
@@ -665,13 +658,12 @@ async function start(client) {
                     const jam = dayjs().format("HH")
                     if(jam > 6 && jam < 13 ){ 
                         const data_harian_koneksi = await Controller.DataHarianKoneksi();
-                        console.log(data_harian_koneksi)
+                        
                         if(data_harian_koneksi != "None"){
                             
                              await client.sendText(group_testbot, data_harian_koneksi);   
                              await client.sendText(group_edpreg_mgrspv, data_harian_koneksi);   
                             
-                            console.log("Data Harian Terkendala Koneksi - Ada :: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))  
                         }
                     }else{
                         console.log("Data Harian Terkendala Koneksi Just Running at 00:00 - 09:00 :: " +  dayjs().format("YYYY-MM-DD HH:mm:ss"))
@@ -891,11 +883,11 @@ async function start(client) {
                     var today2 = dayjs().format("MMDD") 
                     const dataTokoWT = await Controller.dataTokoWT();
                     var pesan =  []
-                    console.log(dataTokoWT)
+                    
                     for(r of dataTokoWT){
 
                         const datanyawt = await Controller.DownloadWT(today,r.kdcab,r.kdtk,r.namatoko,`WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)
-                        console.log(datanyawt)
+                        
                         pesan.push(datanyawt)
                         
                         if (fs.existsSync(`./filewt/WT${today2}${r.kdtk.substr(0,1)}.${r.kdtk.substr(1,3)}`)) {
@@ -969,34 +961,34 @@ async function start(client) {
     Co Resolved
     ============================================
     */
-    cron.schedule('*/15 * * * *', async() => { 
-        //( async() => {    
-          if (taskResolved) { 
-                taskResolved = false    
-                console.log("[START] Task CO Resolved: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                try {     
-                    const data_co = await Controller.coResolved()
-                    for(let r_co of data_co){
-                        let pesanResolved = `\`\`\`Segera Tutup CO Resolved Anda!!\nNo Komplain: ${r_co.No_Komplain}\nToko: ${r_co.Toko}\nTgl Selesai Cbg: ${r_co.tanggal_selesai}\nCO Toko: ${r_co.co_toko}\n\nJawaban CO Relasi: ${r_co.jawaban_cabang}\`\`\``
-                        await client.sendText(`${r_co.id_chat}@c.us`, pesanResolved); 
-                        // await client.sendText(`${user_reg4_rianto}`, pesanResolved);
-                        // await client.sendText(`${user_reg4_putra}`, pesanResolved);
-                        // await client.sendText(`${user_reg4_agus}`, pesanResolved);
-                        // await client.sendText(`${user_reg4_yoyon}`, pesanResolved);
+    // cron.schedule('*/15 * * * *', async() => { 
+    //     //( async() => {    
+    //       if (taskResolved) { 
+    //             taskResolved = false    
+    //             console.log("[START] Task CO Resolved: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //             try {     
+    //                 const data_co = await Controller.coResolved()
+    //                 for(let r_co of data_co){
+    //                     let pesanResolved = `\`\`\`Segera Tutup CO Resolved Anda!!\nNo Komplain: ${r_co.No_Komplain}\nToko: ${r_co.Toko}\nTgl Selesai Cbg: ${r_co.tanggal_selesai}\nCO Toko: ${r_co.co_toko}\n\nJawaban CO Relasi: ${r_co.jawaban_cabang}\`\`\``
+    //                     await client.sendText(`${r_co.id_chat}@c.us`, pesanResolved); 
+    //                     // await client.sendText(`${user_reg4_rianto}`, pesanResolved);
+    //                     // await client.sendText(`${user_reg4_putra}`, pesanResolved);
+    //                     // await client.sendText(`${user_reg4_agus}`, pesanResolved);
+    //                     // await client.sendText(`${user_reg4_yoyon}`, pesanResolved);
 
-                        console.log(`Task CO Resolved - Ada :: ${pesanResolved}`)  
+    //                     console.log(`Task CO Resolved - Ada :: ${pesanResolved}`)  
                          
-                    }
+    //                 }
                     
-                    console.log("[END] Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskResolved = true
-            } catch (err) {
-                    console.log("[END] ERROR !!! Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
-                    taskResolved = true
-                    console.log(err);
-            }
-          } 
-    });
+    //                 console.log("[END] Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskResolved = true
+    //         } catch (err) {
+    //                 console.log("[END] ERROR !!! Task CO Resolved :: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+    //                 taskResolved = true
+    //                 console.log(err);
+    //         }
+    //       } 
+    // });
 
     /* 
     ============================================
@@ -1035,7 +1027,7 @@ async function start(client) {
     /* =================================================*/
     // Reminder Update Program
     /* =================================================*/
-    cron.schedule('55 5,6,7,8,9,10,15,16,17,18,19 * * *', async() => { 
+    cron.schedule('55 5,7,16,17 * * *', async() => { 
     //( async() => {    
         if (taskUpdProg) { 
             taskUpdProg = false    
@@ -1065,7 +1057,7 @@ async function start(client) {
     /* =================================================*/
     // Reminder Toko Opening
     /* =================================================*/
-    cron.schedule('55 7,8,9,10,13,15,16 * * *', async() => { 
+    cron.schedule('55 7,13,15 * * *', async() => { 
         //( async() => {    
             if (taskOpening) { 
                 taskOpening = false    
