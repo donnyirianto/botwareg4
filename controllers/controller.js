@@ -3,6 +3,7 @@ const conn_local = require('../services/dbho');
 const zconn = require('../services/anydb');
 const Iptoko = require('../helpers/iptoko');
 const { Parser } = require('json2csv');
+const Papa = require('papaparse');
 const fs = require('fs');
 const { createCanvas } = require('canvas');
 var dayjs = require("dayjs");
@@ -1339,8 +1340,19 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
             const getWT = await Models.getWT(dtoko.data[0],today)
             
             if(getWT.length > 0 && getWT !="Gagal" && getWT !="Error"){
-                const json2csvParser = new Parser({ delimiter: '|', quote: '',eol:'\r\n' });
-                const csv = json2csvParser.parse(getWT);
+                let opts = {
+                    quotes: false, //or array of booleans
+                    quoteChar: '',
+                    escapeChar: '',
+                    delimiter: "|",
+                    header: true,
+                    newline: "\r\n",
+                    skipEmptyLines: true, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
+                    columns: null //or array of strings
+                }
+                const csv = Papa.unparse(getWT ,opts);
+                //const json2csvParser = new Parser({ delimiter: '|', quote: '',eol:'\r\n' });
+                //const csv = json2csvParser.parse(getWT);
                 //fs.unlinkSync(`./filewt/${namawt}`)
                 
                 fs.writeFileSync(`./filewt/${namawt}`, csv);
@@ -1358,6 +1370,7 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
         
         return pesan
     } catch (e) {
+        console.log(e)
         return `_${kdcab}-${toko}-${namatoko} = Toko Tidak Dapat Diakses_`
     }
 }

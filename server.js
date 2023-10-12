@@ -48,7 +48,7 @@ const user_reg4_yoyon = `6289624118236@c.us`
 
 // ================================
 wa.create({
-    sessionId: "RnD",
+    sessionId: "EDPRnDReg4",
     multiDevice: true, //required to enable multiDevice support
     authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
     blockCrashLogs: true,

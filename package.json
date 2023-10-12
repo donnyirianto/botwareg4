@@ -1,8 +1,11 @@
 {
-  "name": "botwa",
+  "name": "botwareg4",
   "version": "2.0.0",
-  "description": "------------------------------\r Bot Wa Reg 4  V 2.0.0\r ------------------------------\r ---uninstall\r npm uninstall @open-wa/wa-automate mysql2 dayjs dotenv node-cron",
+  "description": "bot wa reg4",
   "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -11,17 +14,16 @@
   "license": "ISC",
   "dependencies": {
     "@open-wa/wa-automate": "^4.66.3",
-    "axios": "^1.4.0",
+    "axios": "^1.5.1",
     "canvas": "^2.11.2",
-    "dayjs": "^1.11.9",
+    "dayjs": "^1.11.10",
     "dotenv": "^16.3.1",
-    "json2csv": "^5.0.7",
+    "json2csv": "^6.0.0-alpha.2",
     "mailparser": "^3.6.5",
-    "mysql2": "^3.6.0",
+    "mysql2": "^3.6.1",
     "node-cron": "^3.0.2",
     "node-imap": "^0.9.6",
-    "npm": "^10.0.0",
-    "redis": "^4.6.8",
-    "uninstall": "^0.0.0"
+    "papaparse": "^5.4.1",
+    "redis": "^4.6.10"
   }
 }
