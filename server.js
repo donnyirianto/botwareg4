@@ -298,6 +298,18 @@ async function start(client) {
                                     await client.sendText(message.from, `Tidak Ada Informasi Toko Opening untuk Besok`);
                                 } 
                                 break;
+                            case '8': 
+                                try {
+                                    console.log("ada pesan ori")
+                                    await client.sendText(message.from, `Mohon ditunggu, proses Export Report ORI sedang berjalan`);
+                                    await client.sendFile(message.from, "/home/donny/project/downloadori/downloads/report-ORI-V2.zip", "report-ORI-V2.zip", `Report ORI V2`)
+                                    await client.sendFile(message.from, "/home/donny/project/downloadori/downloads/report-ORI-V3.zip", "report-ORI-V3.zip", `Report ORI V3`)
+                                    
+                                } catch (error) {
+                                    console.log(error)
+                                }
+                               
+                                break;
 
                             case 'STOP': 
                                 await conn_ho.query(`UPDATE m_updprog_reminder SET berakhir='Y' where id='${pesan[1]}';`);
