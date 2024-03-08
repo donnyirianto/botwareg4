@@ -19,6 +19,7 @@ var taskHarianIrisAllImage = true
 var taskPBHOLDEDP = true
 var taskPBHOLDCabang = true
 var taskOto = true
+var taskTokoLibur = true
 var taskExportWT = true
 var taskPbbhTampung = true
 var taskHarianTampungAllImage = true
@@ -1092,6 +1093,27 @@ async function start(client) {
                         console.log("[END] ERROR !!! Reminder Toko Opening:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                         taskOpening = true
                         console.log('Reminder Toko Opening::' + err);
+                }
+            } 
+        });
+
+        /* =================================================*/
+        // Reminder Absensi Toko Libur
+        /* =================================================*/
+        cron.schedule('*/15 * * * *', async() => { 
+        //( async() => {    
+            if (taskTokoLibur && (dayjs().format("YYYY-MM-DD") === "2024-03-10") && (parseInt(dayjs().format("H")) >= 20)) { 
+                taskTokoLibur = false
+                    console.log("[START] Reminder Toko Libur: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                    try {       
+                        const res4 = await Controller.HarianTokoLiburCabang2("G034")
+                        await client.sendText(group_edpreg_mgrspv, res4);
+                        console.log("[END] Reminder Toko Libur:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskTokoLibur = true
+                } catch (err) {
+                        console.log("[END] ERROR !!! Reminder Toko Libur:: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
+                        taskTokoLibur = true
+                        console.log('Reminder Toko Libur::' + err);
                 }
             } 
         });

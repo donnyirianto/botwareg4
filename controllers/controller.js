@@ -1203,7 +1203,7 @@ const HarianTokoLibur = async () => {
             masuk += parseInt(r.sudah); 
             belum += parseInt(r.belum); 
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur ${today}*\n\n`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian ${today}\nToko Libur*\n\n`
         const header2 = `*Kdcab | Toko Aktif | Sudah Masuk | Belum Masuk | %* \n`
         const footer = `*Total | ${toko_aktif} | ${masuk} | ${belum} | ${Number(((belum)/toko_aktif * 100).toFixed(2))}%*`
 
@@ -1249,19 +1249,11 @@ const HarianTokoLiburCabang = async (kdcab) => {
             no_am++;
         })
 
-        const data = await Models.HarianTokoLiburCabang(kdcab,today)
-        // for (let i = 0; i < data.length; i++) {
-        //     if (i > 0 && data[i].kdam !== data[i-1].kdam) {
-        //         tampil_data.push("\n*AM | AS | Nama Toko*");
-        //     } else {
-        //         tampil_data.push(`${data[i].kdam} | ${data[i].kdas} | _${data[i].toko}-${data[i].nama}_`)
-        //     }
-        //   }
-        // console.log(newArray)
+        const data = await Models.HarianTokoLiburCabang(kdcab,today) 
         data.map( async (r)=>{
             tampil_data.push(`${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}`)
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian Toko Libur ${today}*\nCabang: ${kdcab.toUpperCase()}\n\n`
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian ${today}\nToko Libur*\nCabang: ${kdcab.toUpperCase()}\n\n`
         const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
         const header2 = `_Detail Toko Data Harian Belum Terkirim ke Server Tampung_\n\n*AM | AS | Nama Toko*\n`
 
@@ -1274,6 +1266,65 @@ const HarianTokoLiburCabang = async (kdcab) => {
     }
 }
 
+const HarianTokoLiburCabang2 = async (kdcab) => {
+    try {
+       
+        var today = ""
+        var now = new Date();
+        const jam = dayjs(now).format("HH")
+        const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
+        if(jam < 14 ){
+            var date =  new Date()
+            var yesterday = date.setDate(date.getDate()-1);
+            today = dayjs(yesterday).format("YYYY-MM-DD")
+        }else{
+            var yesterday = now
+            today = dayjs(now).format("YYYY-MM-DD")
+        }
+
+        var no = 1;
+        var no_am = 1; 
+        var tampil_data = []
+        var tampil_am = []
+        var tampil_am_footer = []
+        
+        let filter = "" 
+        if(parseInt(dayjs().format("H")) === "20"){
+            filter = `and jam = '21:00'`
+        }else if(parseInt(dayjs().format("H")) === "21"){
+            filter = `and jam in('21:00','22:00')`
+        }else{
+            filter =""
+        }
+
+        const data_am = await Models.HarianTokoLiburCabangAm2(kdcab,today,filter)
+        data_am.map( async (r_am)=>{
+            tampil_am.push(`${no_am} | ${r_am.am} | ${r_am.total} | ${r_am.sudah} | ${r_am.persen_sudah}% | ${r_am.belum}| ${r_am.persen_belum}% `)
+            no_am++;
+        })
+
+        const data_am_footer = await Models.HarianTokoLiburCabangAmFooter2(kdcab,today,filter)
+        data_am_footer.map( async (r_am_footer)=>{
+            tampil_am_footer.push(`  *Grand Total | ${r_am_footer.total} | ${r_am_footer.sudah} | ${r_am_footer.persen_sudah}% | ${r_am_footer.belum}| ${r_am_footer.persen_belum}%*`)
+            no_am++;
+        })
+
+        const data = await Models.HarianTokoLiburCabang2(kdcab,today,filter) 
+        data.map( async (r)=>{
+            tampil_data.push(`${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}`)
+        })
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian ${today}\nToko Libur*\nCabang: ${kdcab.toUpperCase()}\n\n`
+        const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
+        const header2 = `_Detail Toko Data Harian Belum Terkirim ke Server Tampung_\n\n*AM | AS | Nama Toko*\n`
+
+        const respons = `${header}${header_am}${tampil_am.join("\n")}\n${tampil_am_footer}\n\n${header2}${tampil_data.join("\n")}\n\n_Last Update: ${sekarang}_`
+        return respons
+
+    } catch (e) {
+        
+        return "🛠️ Server sedang dalam perbaikan, Mohon hubungi Administrator Anda!!" 
+    }
+}
 
  
 const cekHarianToko = async (kdtk) => {
@@ -1505,6 +1556,6 @@ module.exports = {
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
     DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB,absenPbbh,HarianTampung_new_allcabangImage,
-    ServerPbroReg4
+    ServerPbroReg4,HarianTokoLiburCabang2
   }
  
