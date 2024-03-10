@@ -1189,7 +1189,7 @@ const HarianTokoLibur = async () => {
             var yesterday = now
             today = dayjs(now).format("YY-MM-DD")
         }
-
+        today = "2024-03-10"
         var toko_aktif = 0;
         var masuk = 0; 
         var belum = 0; 
@@ -1199,7 +1199,7 @@ const HarianTokoLibur = async () => {
         
         data.map( async (r)=>{
             tampil_data.push(`${r.kdcab}-${r.nama} | ${r.total_toko} | ${r.sudah} | ${r.belum} | ${Number(((r.belum)/r.total_toko * 100).toFixed(2))}%`)
-            toko_aktif += r.total_toko;
+            toko_aktif += parseInt(r.total_toko);
             masuk += parseInt(r.sudah); 
             belum += parseInt(r.belum); 
         })
@@ -1231,6 +1231,7 @@ const HarianTokoLiburCabang = async (kdcab) => {
             today = dayjs(now).format("YYYY-MM-DD")
         }
 
+        today = "2024-03-10"
         var no = 1;
         var no_am = 1; 
         var tampil_data = []
@@ -1248,10 +1249,18 @@ const HarianTokoLiburCabang = async (kdcab) => {
             tampil_am_footer.push(`  *Grand Total | ${r_am_footer.total} | ${r_am_footer.sudah} | ${r_am_footer.persen_sudah}% | ${r_am_footer.belum}| ${r_am_footer.persen_belum}%*`)
             no_am++;
         })
-
-        const data = await Models.HarianTokoLiburCabang(kdcab,today) 
-        data.map( async (r)=>{
-            tampil_data.push(`${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}`)
+        let filter = ""  
+        if(parseInt(dayjs().format("H")) === 21){
+            filter = `and jam in('21:00','22:00')`
+        }else if(parseInt(dayjs().format("H")) === 22){
+            filter = `and jam in('21:00','22:00','23:00')`
+        }else{
+            filter =""
+        }
+        console.log(filter)
+        const data = await Models.HarianTokoLiburCabang2(kdcab,today,filter) 
+        data.map( async (r, index)=>{
+            tampil_data.push(`${index + 1}. ${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama.substring(0,13)}`)
         })
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${today}\nToko Libur*\nCabang: ${kdcab.toUpperCase()}\n\n`
         const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
@@ -1281,6 +1290,7 @@ const HarianTokoLiburCabang2 = async (kdcab) => {
             var yesterday = now
             today = dayjs(now).format("YYYY-MM-DD")
         }
+        today = "2024-03-10"
 
         var no = 1;
         var no_am = 1; 
@@ -1288,11 +1298,11 @@ const HarianTokoLiburCabang2 = async (kdcab) => {
         var tampil_am = []
         var tampil_am_footer = []
         
-        let filter = "" 
-        if(parseInt(dayjs().format("H")) === "20"){
-            filter = `and jam = '21:00'`
-        }else if(parseInt(dayjs().format("H")) === "21"){
+        let filter = ""  
+        if(parseInt(dayjs().format("H")) === 21){
             filter = `and jam in('21:00','22:00')`
+        }else if(parseInt(dayjs().format("H")) === 22){
+            filter = `and jam in('21:00','22:00','23:00')`
         }else{
             filter =""
         }
@@ -1310,8 +1320,8 @@ const HarianTokoLiburCabang2 = async (kdcab) => {
         })
 
         const data = await Models.HarianTokoLiburCabang2(kdcab,today,filter) 
-        data.map( async (r)=>{
-            tampil_data.push(`${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama}`)
+        data.map( async (r, index)=>{
+            tampil_data.push(`${index + 1}. ${r.kdam} | ${r.kdas} | ${r.toko}-${r.nama.substring(0,13)}`)
         })
         const header = `📚 *Server Tampung*\n*Absensi Data Harian ${today}\nToko Libur*\nCabang: ${kdcab.toUpperCase()}\n\n`
         const header_am = `*No | AM | Total | Sudah Masuk | % | Belum Masuk| %* \n`
@@ -1333,7 +1343,7 @@ const cekHarianToko = async (kdtk) => {
         var today = ""
         var now = new Date();
         const jam = dayjs(now).format("HH")
-        const sekarang = dayjs(now).format("YY-MM-DD HH:mm")
+        const sekarang = dayjs(now).format("YYYY-MM-DD HH:mm")
         if(jam < 14 ){
             var date =  new Date()
             var yesterday = date.setDate(date.getDate()-1);
@@ -1342,13 +1352,13 @@ const cekHarianToko = async (kdtk) => {
             var yesterday = now
             today = dayjs(now).format("YYYY-MM-DD")
         }
- 
+        today = "2024-03-10"
         const data = await Models.cekHarianToko(kdtk,today)
         let tampil_data = []
         data.map( async (r)=>{
             tampil_data.push(`Toko  : ${r.kdtk}-${r.nama}\nAM    : ${r.amgr_name} \nAS    : ${r.aspv_name}\nStatus: ${r.keterangan}`)
         })
-        const header = `📚 *Server Tampung*\n*Absensi Data Harian*` 
+        const header = `📚 *Server Tampung*\n*Absensi Data Harian*\nTgl Harian: ${today}` 
         const respons = `${header}\n\n${tampil_data.join("\n")}\n\n_Last Update: ${sekarang}_`
         return respons
 

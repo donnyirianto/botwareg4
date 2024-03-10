@@ -826,8 +826,6 @@ const HarianTokoLiburCabang = async (kdcab,tanggal) => {
         from
         m_toko_libur_acuan a
         left join
-        posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
-        left join
         m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
         where
         a.recid=''
@@ -853,8 +851,6 @@ const HarianTokoLiburCabang2 = async (kdcab,tanggal,filter) => {
         from
         m_toko_libur_acuan a
         left join
-        posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
-        left join
         m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
         where
         a.recid=''
@@ -863,6 +859,7 @@ const HarianTokoLiburCabang2 = async (kdcab,tanggal,filter) => {
         and c.nama_file is null
         ${filter}
         order by kdam,kdas,toko;`
+        console.log(queryx)
         const belum = await conn_ho.query(queryx)
         
         return belum
@@ -904,13 +901,12 @@ const HarianTokoLiburCabangAm = async (kdcab,yesterday) => {
         am,total,belum,sudah,round((belum/total) * 100,2) as persen_belum,round((sudah/total) * 100,2) as persen_sudah
         from (
         select
-        if(left(substr(b.amgr_name,12,10),4) ='cant','Vacant', substr(b.amgr_name,12,10)) as am,COUNT(*) AS total,
+        a.kdam as am,
+        COUNT(*) AS total,
         sum(if(nama_file is null,1,0)) as belum,
         sum(if(nama_file is not null,1,0)) as sudah
         from
         m_toko_libur_acuan a
-        left join
-        posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
         left join
         m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
         where
@@ -938,13 +934,12 @@ const HarianTokoLiburCabangAm2 = async (kdcab,yesterday,filter) => {
         am,total,belum,sudah,round((belum/total) * 100,2) as persen_belum,round((sudah/total) * 100,2) as persen_sudah
         from (
             select
-                if(left(substr(b.amgr_name,12,10),4) ='cant','Vacant', substr(b.amgr_name,12,10)) as am,COUNT(*) AS total,
+                a.kdam as am,
+                COUNT(*) AS total,
                 sum(if(nama_file is null,1,0)) as belum,
                 sum(if(nama_file is not null,1,0)) as sudah
             from
                 m_toko_libur_acuan a
-            left join
-                posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
             left join
                 m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
             where
@@ -979,8 +974,6 @@ const HarianTokoLiburCabangAmFooter = async (kdcab,yesterday) => {
             from
                 m_toko_libur_acuan a
             left join
-                posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
-            left join
                 m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
             where
             a.recid=''
@@ -1009,8 +1002,6 @@ const HarianTokoLiburCabangAmFooter2 = async (kdcab,yesterday,filter) => {
                 sum(if(nama_file is not null,1,0)) as sudah
             from
                 m_toko_libur_acuan a
-            left join
-                posrealtime_base.toko_extended b on concat(a.toko,a.kdcab) = concat(b.kodetoko,b.kodegudang)
             left join
                 m_abs_harian_file c on a.toko = c.kdtk and a.tanggal = c.tanggal_harian
             where

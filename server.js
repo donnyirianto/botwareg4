@@ -1102,7 +1102,7 @@ async function start(client) {
         /* =================================================*/
         cron.schedule('*/15 * * * *', async() => { 
         //( async() => {    
-            if (taskTokoLibur && (dayjs().format("YYYY-MM-DD") === "2024-03-10") && (parseInt(dayjs().format("H")) >= 20)) { 
+            if (taskTokoLibur && (dayjs().format("YYYY-MM-DD") === "2024-03-11") && (parseInt(dayjs().format("H")) <= 3)) { 
                 taskTokoLibur = false
                     console.log("[START] Reminder Toko Libur: " + dayjs().format("YYYY-MM-DD HH:mm:ss") )
                     try {       
