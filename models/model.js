@@ -152,7 +152,7 @@ const dataserver = async () => {
         //'G025','G030','G034','G097','G146','G148','G149','G158','G174','G301','G305') 
         const rows = await conn_ho.query(`
             select * from m_server_iris where jenis='IRIS'
-            and kdcab in('G004','G025','G030','G034','G244','G146','G148','G149','G158','G174','G177','G301','G305','G224','G232','G234')
+            and kdcab in('G004','G025','G030','G034','G244','G146','G148','G149','G158','G174','G177','G301','G305','G224','G232','G234','G263')
             order by kdcab
         `)
         return rows
