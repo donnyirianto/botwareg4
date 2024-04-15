@@ -49,37 +49,25 @@ const user_reg4_yoyon = `6289624118236@c.us`
 
 // ================================
 wa.create({
-    sessionId: "EDPRnDReg4",
-    multiDevice: true, //required to enable multiDevice support
+    sessionId: "EDPRnDReg4ke2",
+    multiDevice: false, //required to enable multiDevice support
     authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
-    blockCrashLogs: true,
+    blockCrashLogs: false,
     disableSpins: true,
     headless: true,
     hostNotificationLang: 'PT_BR',
-    logConsole: false,
+    logConsole: true,
     popup: true,
-    qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
-    // authTimeout: 0, //wait only 60 seconds to get a connection with the host account device
-    // blockCrashLogs: true,
-    // disableSpins: true,
-    // headless: true,
-    // hostNotificationLang: 'PT_BR',
-    // logConsole: true,
-    // popup: true,
-    // qrTimeout: 0, //0 means it will wait forever for you to scan the qr code
+    qrTimeout: 0,
+    logConsole: true,
+  logConsoleErrors: true,
+  logFile: true,
+  onError: "LOG_AND_FALSE",
     // restartOnCrash: start, 
     // cacheEnabled: false, 
     // useChrome: true, 
     // killProcessOnBrowserClose: true, 
     //throwErrorOnTosBlock: false, 
-     chromiumArgs: [ '--no-sandbox', 
-                    '--disable-setuid-sandbox', 
-                    '--aggressive-cache-discard', 
-                    '--disable-cache', '--disable-application-cache', 
-                    '--disable-offline-load-stale-cache', 
-                    '--disk-cache-size=0' ,
-                    '--disable-web-security'
-    ]
 }).then(client => start(client));
 
 async function start(client) { 

@@ -1396,7 +1396,7 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
         
         var pesan = ""
         const dtoko = await Iptoko.bykdtk(kdcab,toko)
-        
+        console.log(dtoko)
         if(dtoko.data.length > 0 && dtoko.data[0].IP.substr(0,3) != "192"){
             const getWT = await Models.getWT(dtoko.data[0],today)
             
@@ -1428,7 +1428,7 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
             
             pesan =`_${kdcab}-${toko}-${namatoko} = IP Tidak Terdaftar_`
         } 
-        
+        console.log(pesan)
         return pesan
     } catch (e) {
         console.log(e)

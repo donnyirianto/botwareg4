@@ -1036,18 +1036,19 @@ FROM MSTRAN A LEFT JOIN PRODMAST B ON A.PRDCD=B.PRDCD
 LEFT JOIN SUPMAST C ON A.SUPCO=C.SUPCO
 WHERE DATE(BUKTI_TGL)='${tanggal}' AND istype not in ('GGC','RMB') limit 100000;
 `       
-        let rows =""
+        let rows = ""
         
         for(var r of dtoko.PASSWORD.split("|")){
             rows = await conn_any.zconn(dtoko.IP,dtoko.USER,r,"POS","3306", queryx)
-            if(rows != "error")
+            rows = JSON.parse(JSON.stringify(rows))
+            if(Array.isArray(rows))
                 break
         }
         
         return rows
 
     } catch (e) { 
-        
+        console.log(e)
         return "Gagal"
     }
 }

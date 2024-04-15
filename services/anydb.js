@@ -17,10 +17,11 @@ const zconn = async (host,user,password,database,port, queryx) => {
       
       const [result] = await conn.query(queryx)
       conn.end()
-      return result
+      
+      return JSON.parse(JSON.stringify(result))
     
   } catch (error) {
-      
+      console.log(error)
       return "error"
   }
 }
