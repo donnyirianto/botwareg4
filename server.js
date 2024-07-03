@@ -49,8 +49,8 @@ const user_reg4_yoyon = `6289624118236@c.us`
 
 // ================================
 wa.create({
-    sessionId: "EDPRnDReg4ke2",
-    multiDevice: false, //required to enable multiDevice support
+    sessionId: "EDPRnDReg4ke3",
+    multiDevice: true, //required to enable multiDevice support
     authTimeout: 60, //wait only 60 seconds to get a connection with the host account device
     blockCrashLogs: false,
     disableSpins: true,
@@ -291,7 +291,6 @@ async function start(client) {
                                 try {
                                     console.log("ada pesan ori")
                                     await client.sendText(message.from, `Mohon ditunggu, proses Export Report ORI sedang berjalan`);
-                                    await client.sendFile(message.from, "/home/donny/project/downloadori/downloads/report-ORI-V2.zip", "report-ORI-V2.zip", `Report ORI V2`)
                                     await client.sendFile(message.from, "/home/donny/project/downloadori/downloads/report-ORI-V3.zip", "report-ORI-V3.zip", `Report ORI V3`)
                                     
                                 } catch (error) {

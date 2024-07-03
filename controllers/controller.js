@@ -1436,6 +1436,46 @@ const DownloadWT = async (today,kdcab,toko,namatoko,namawt) => {
     }
 }
  
+const DownloadWT2 = async (today,kdcab,toko,namatoko,namawt,docno) => {
+    try {  
+        
+        var pesan = ""
+        const dtoko = await Iptoko.bykdtk(kdcab,toko)
+        console.log(dtoko)
+        if(dtoko.data.length > 0 && dtoko.data[0].IP.substr(0,3) != "192"){
+            const getWT = await Models.getWT2(dtoko.data[0],today,docno)
+            
+            if(getWT.length > 0 && getWT !="Gagal" && getWT !="Error"){
+                let opts = {
+                    quotes: false, //or array of booleans
+                    quoteChar: '',
+                    escapeChar: '',
+                    delimiter: "|",
+                    header: true,
+                    newline: "\r\n",
+                    skipEmptyLines: true, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
+                    columns: null //or array of strings
+                }
+                const csv = Papa.unparse(getWT ,opts);
+                
+                fs.writeFileSync(`./filewt/khusus/${namawt}`, csv);
+                
+                pesan =`*${kdcab}-${toko}-${namatoko} Export WT =  Ada trx mstran*`    
+            }else{
+                pesan =`${kdcab}-${toko}-${namatoko} Export WT =  Tidak Ada Trx Mstran`
+            }
+        
+        }else{
+            
+            pesan =`_${kdcab}-${toko}-${namatoko} = IP Tidak Terdaftar_`
+        } 
+        console.log(pesan)
+        return pesan
+    } catch (e) {
+        console.log(e)
+        return `_${kdcab}-${toko}-${namatoko} = Toko Tidak Dapat Diakses_`
+    }
+}
 const DownloadSB = async (today,kdcab,toko,namatoko,namafile) => {
     try {  
         
@@ -1565,7 +1605,7 @@ module.exports = {
     TeruskanPB,HoldPB,
     cekCabang,AkunCabangOto,
     updateDataOto,updRecid2,HitungRekapHold,getBM,
-    DownloadWT,dataTokoWT,DataHarianLebih9,DownloadSB,absenPbbh,HarianTampung_new_allcabangImage,
+    DownloadWT,DownloadWT2,dataTokoWT,DataHarianLebih9,DownloadSB,absenPbbh,HarianTampung_new_allcabangImage,
     ServerPbroReg4,HarianTokoLiburCabang2
   }
  

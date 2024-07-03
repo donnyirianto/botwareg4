@@ -1052,7 +1052,38 @@ WHERE DATE(BUKTI_TGL)='${tanggal}' AND istype not in ('GGC','RMB') limit 100000;
         return "Gagal"
     }
 }
+const getWT2 = async (dtoko,tanggal,docno) => { 
+    
+    try {
+        const queryx = `
+        SELECT IFNULL(A.RECID,'') AS RECID,LEFT(A.RTYPE,1) AS RTYPE,
+        A.BUKTI_NO AS DOCNO,A.SEQNO,if(length(B.CAT_COD)=6,MID(B.CAT_COD,3,2),MID(B.CAT_COD,2,2)) AS \`DIV\`,
+        A.PRDCD,A.QTY,A.PRICE,A.GROSS,CR_TERM AS CTERM,A.INVNO AS DOCNO2,A.ISTYPE,
+        A.PO_NO AS INVNO,
+        IF((RTYPE='BPB' AND ISTYPE='') OR RTYPE IN ('I','O') OR (RTYPE='K' AND ISTYPE<>'L'),
+        GUDANG,
+        IF((RTYPE='BPB' AND ISTYPE<>'') OR (RTYPE='K' AND ISTYPE='L'),A.SUPCO,IF(RTYPE='X' AND (ISTYPE='' OR ISTYPE IN ('BM','KO')),(SELECT TOKO FROM TOKO),IF(RTYPE='X' AND (ISTYPE LIKE '%BA%' OR ISTYPE LIKE '%SO%') AND A.SUPCO='',(SELECT TOKO FROM TOKO),IF(RTYPE='X' AND (ISTYPE LIKE '%BA%' OR ISTYPE LIKE '%SO%') AND A.SUPCO<>'',A.SUPCO,'XXX'))))) AS TOKO,DATE_FORMAT(A.BUKTI_TGL,'%y%m%d') AS \`DATE\`,'0' AS DATE2,A.KETER AS KETERANGAN,B.PTAG,B.CAT_COD,'01' AS LOKASI,DATE_FORMAT(A.BUKTI_TGL,'%d-%m-%Y') AS TGL1,DATE_FORMAT(A.INV_DATE,'%d-%m-%Y') AS TGL2,A.PPN,'' AS TOKO_1,'' AS DATE3,'' AS DOCNO3,(SELECT KDTK FROM TOKO) AS SHOP,A.PRICE_IDM,'0' AS PPNBM_IDM,A.PPN_RP_IDM AS PPNRP_IDM,IFNULL(A.LT,'') AS LT,IFNULL(A.RAK,'') AS RAK,IFNULL(A.BAR,'') AS BAR,IF(A.BKP="Y",'T','F') AS BKP,IFNULL(A.SUB_BKP,' ') AS SUB_BKP,A.PRDCD AS PLUMD,A.GROSS_JUAL,A.PRICE_JUAL,IFNULL(C.KODE_SUPPLIER,'') AS KODE_SUPPLIER,A.DISC_05 AS DISC05,ifnull(ppn_rate,0) RATE_PPN,time(bukti_tgl) JAM,
+        if(b.flagprod rlike 'POT=Y','POT','') FLAG_BO
+FROM MSTRAN A LEFT JOIN PRODMAST B ON A.PRDCD=B.PRDCD
+LEFT JOIN SUPMAST C ON A.SUPCO=C.SUPCO
+WHERE DATE(BUKTI_TGL)='${tanggal}' and bukti_no in(${docno}) AND istype not in ('GGC','RMB') limit 100000;
+`       
+        let rows = ""
+        
+        for(var r of dtoko.PASSWORD.split("|")){
+            rows = await conn_any.zconn(dtoko.IP,dtoko.USER,r,"POS","3306", queryx)
+            rows = JSON.parse(JSON.stringify(rows))
+            if(Array.isArray(rows))
+                break
+        }
+        
+        return rows
 
+    } catch (e) { 
+        console.log(e)
+        return "Gagal"
+    }
+}
 
 const getSB = async (dtoko,tanggal) => { 
     
@@ -1215,7 +1246,7 @@ module.exports = {
     HarianTokoLibur,HarianTokoLiburCabang,DataPbHoldEDP,AkunCabang,DataPbHoldCabang,
     TeruskanPB,HoldPB,cekCabang,AkunCabangOto,updateDataOto,
     HarianTokoLiburCabangAm,HarianTokoLiburCabangAmFooter,updRecid2,HitungRekapHold,getBM,
-    getWT,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh,ServerPbroReg4,coResolved,
+    getWT,getWT2,dataTokoWT,insertHarianJam9, getSB,cekHarianToko,absenPbbh,ServerPbroReg4,coResolved,
     HarianTokoLiburCabangAm2,
     HarianTokoLiburCabangAmFooter2,HarianTokoLiburCabang2
 }
